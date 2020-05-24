@@ -4,7 +4,7 @@ import 'package:sqflite/sqlite_api.dart';
 import 'dart:async';
 import 'dart:io' as io;
 import 'package:path/path.dart';
-import 'package:store_flutter_app/models/User.dart';
+import 'package:store_flutter_app/models/user.dart';
 
 class DBHelper {
   static final String tableUser = 'User';

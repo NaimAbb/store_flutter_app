@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:store_flutter_app/db/db_helper.dart';
 import 'package:store_flutter_app/localization/localization_constants.dart';
-import 'package:store_flutter_app/models/User.dart';
+import 'package:store_flutter_app/models/user.dart';
 import 'package:store_flutter_app/widgets/button_common.dart';
 import 'package:provider/provider.dart';
 import 'package:store_flutter_app/providers/auth.dart';

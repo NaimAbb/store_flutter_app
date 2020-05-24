@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:store_flutter_app/db/db_helper.dart';
-import 'package:store_flutter_app/models/User.dart';
+import 'package:store_flutter_app/models/user.dart';
 
 class Auth extends ChangeNotifier {
   final _db = DBHelper();

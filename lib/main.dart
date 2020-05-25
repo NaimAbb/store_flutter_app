@@ -18,12 +18,13 @@ import 'package:provider/provider.dart';
 import 'providers/auth.dart';
 import 'utils/constants.dart';
 import 'localStorage/shared_preferences_local.dart';
+import 'providers/merchant.dart';
 
 Future<Map<String, dynamic>> _init() async {
   Map<String, dynamic> data = {};
   Constants.sharedPreferencesLocal = await SharedPreferencesLocal.getInstance();
-   // await Constants.sharedPreferencesLocal.clear();
-    if (Constants.sharedPreferencesLocal.getIsLogin()) {
+  // await Constants.sharedPreferencesLocal.clear();
+  if (Constants.sharedPreferencesLocal.getIsLogin()) {
     if (Constants.sharedPreferencesLocal.getTypeAccount() == 'Client') {
       data['isLogin'] = true;
       data['type'] = 'Client';
@@ -87,7 +88,10 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider.value(value: Auth())],
+      providers: [
+        ChangeNotifierProvider.value(value: Auth()),
+        ChangeNotifierProvider.value(value: Merchant())
+      ],
       child: MaterialApp(
         localeResolutionCallback: (deviceLocale, supportedLocales) {
           // return Locale('ar', 'AE');

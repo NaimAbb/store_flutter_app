@@ -38,5 +38,6 @@
   "PleaseEnterPassword" : "الرجاء ادخال كلمة المرور",
   "MorePassword" : "يجب ان تحتوي كلمة المرور على ٦ ارقام فاكثر",
   "PleaseEnterType" : "الرجاء ادخال النوع",
-  "EmailExist" : "البريد الالكتروني موجود بالفعل!"
+  "EmailExist" : "البريد الالكتروني موجود بالفعل!",
+  "PleaseFillThisField" : "الرجاء مليء هذا الحقل"
 }

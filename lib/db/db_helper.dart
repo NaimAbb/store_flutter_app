@@ -5,12 +5,14 @@ import 'dart:async';
 import 'dart:io' as io;
 import 'package:path/path.dart';
 import 'package:store_flutter_app/models/category.dart';
+import 'package:store_flutter_app/models/product.dart';
 import 'package:store_flutter_app/models/user.dart';
 
 class DBHelper {
   final String tableUser = 'User';
   final String tableCategory = 'Category';
   final String tableProduct = 'product';
+  final String tableProductUser = 'productUser';
 
   static Database dbInstance;
 
@@ -36,7 +38,10 @@ class DBHelper {
         'CREATE TABLE $tableCategory (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , name TEXT NOT NULL);');
 
     await db.execute(
-        'CREATE TABLE $tableProduct (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , name TEXT NOT NULL ,Duscription TEXT NOT NULL, price REAL NOT NULL , idCategory INTEGER NOT NULL , FOREIGN KEY(idCategory) REFERENCES $tableCategory (id));');
+        'CREATE TABLE $tableProduct (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , name TEXT NOT NULL ,duscription TEXT NOT NULL, price REAL NOT NULL , image TEXT NOT NULL,idCategory INTEGER NOT NULL , FOREIGN KEY(idCategory) REFERENCES $tableCategory (id));');
+
+    await db.execute(
+        'CREATE TABLE $tableProductUser (idUser INTEGER NOT NULL  , idProduct INTEGER NOT NULL ,FOREIGN KEY(idUser) REFERENCES $tableUser (id)  , FOREIGN KEY(idProduct) REFERENCES $tableProduct (id));');
   }
 
   // || Operation User
@@ -104,6 +109,7 @@ class DBHelper {
     List<String> categories = ['Womman', 'Man', 'Kids'];
 
     for (String item in categories) {
+      print(item);
       String query = 'INSERT INTO $tableCategory (name) VALUES (\'${item}\')';
       int result = await dbConnection.transaction((transaction) async {
         return await transaction.rawInsert(query);
@@ -123,6 +129,39 @@ class DBHelper {
       categories.add(category);
     }
     return categories;
+  }
+
+  Future<void> addProduct(Product product, int idCurrentUser) async {
+    var dbConnection = await db();
+    String query =
+        'INSERT INTO $tableProduct (name , duscription , price , image ,idCategory ) VALUES (\'${product.name}\', \'${product.description}\',${product.price} , \'${product.image}\' , ${product.idCategory})';
+
+    int result = await dbConnection.transaction((transaction) async {
+      return await transaction.rawInsert(query);
+    });
+
+    String queryTableProductUser =
+        'INSERT INTO $tableProductUser (idUser ,idProduct ) VALUES (${idCurrentUser} , ${result})';
+    int resultTableProductUser =
+        await dbConnection.transaction((transaction) async {
+      return await transaction.rawInsert(queryTableProductUser);
+    });
+  }
+
+  Future<List<Product>> getProducts() async {
+    var dbConnection = await db();
+    List<Map> list = await dbConnection.rawQuery('SELECT * FROM $tableProduct');
+    List<Product> products = new List();
+
+    for (int i = 0; i < list.length; i++) {
+      Product product = new Product(list[i]['name'], list[i]['price'],
+          list[i]['idCategory'], list[i]['duscription']);
+      product.image = list[i]['image'];
+      product.id = list[i]['id'].toString();
+      print(product.idCategory);
+      products.add(product);
+    }
+    return products;
   }
 //  void onCreateTableClient(Database db, int version) async {
 //    await db.execute(

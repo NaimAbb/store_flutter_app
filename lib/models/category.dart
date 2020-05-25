@@ -5,7 +5,7 @@ class Category {
   Category(this._id, this._name);
 
   factory Category.fromJson(Map<String, dynamic> data) {
-    return Category(data['id'], data['name']);
+    return Category(data['id'].toString(), data['name']);
   }
 
   String get name => _name;

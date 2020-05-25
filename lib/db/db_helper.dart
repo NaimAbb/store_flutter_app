@@ -4,10 +4,13 @@ import 'package:sqflite/sqlite_api.dart';
 import 'dart:async';
 import 'dart:io' as io;
 import 'package:path/path.dart';
+import 'package:store_flutter_app/models/category.dart';
 import 'package:store_flutter_app/models/user.dart';
 
 class DBHelper {
-  static final String tableUser = 'User';
+  final String tableUser = 'User';
+  final String tableCategory = 'Category';
+  final String tableProduct = 'product';
 
   static Database dbInstance;
 
@@ -29,7 +32,14 @@ class DBHelper {
   void onCreateAll(Database db, int version) async {
     await db.execute(
         'CREATE TABLE $tableUser (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL  , name TEXT NOT NULL , email TEXT NOT NULL , password TEXT NOT NULL ,  type TEXT NOT NULL );');
+    await db.execute(
+        'CREATE TABLE $tableCategory (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , name TEXT NOT NULL);');
+
+    await db.execute(
+        'CREATE TABLE $tableProduct (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , name TEXT NOT NULL ,Duscription TEXT NOT NULL, price REAL NOT NULL , idCategory INTEGER NOT NULL , FOREIGN KEY(idCategory) REFERENCES $tableCategory (id));');
   }
+
+  // || Operation User
 
   Future<int> addUser(User user, String password) async {
     var dbConnection = await db();
@@ -71,6 +81,48 @@ class DBHelper {
     } else {
       return false;
     }
+  }
+
+  Future<User> emailAndPasswordIsExist(String email, String password) async {
+    var dbConnection = await db();
+    List<Map> list = await dbConnection.rawQuery(
+        'SELECT * FROM $tableUser WHERE email = ? AND password = ?',
+        [email, password]);
+    if (list != null && list.isNotEmpty) {
+      String type = list[0]['type'] as String;
+      User user = new User(list[0]['name'], list[0]['email'],
+          type == 'Client' ? Type.Client : Type.Merchant);
+      user.id = list[0]['id'].toString();
+      return user;
+    } else {
+      return null;
+    }
+  }
+
+  Future<void> addCategories() async {
+    var dbConnection = await db();
+    List<String> categories = ['Womman', 'Man', 'Kids'];
+
+    for (String item in categories) {
+      String query = 'INSERT INTO $tableCategory (name) VALUES (\'${item}\')';
+      int result = await dbConnection.transaction((transaction) async {
+        return await transaction.rawInsert(query);
+      });
+    }
+  }
+
+  Future<List<Category>> getCategories() async {
+    var dbConnection = await db();
+    List<Map> list =
+        await dbConnection.rawQuery('SELECT * FROM $tableCategory');
+    List<Category> categories = new List();
+
+    for (int i = 0; i < list.length; i++) {
+      Category category = Category.fromJson(list[i]);
+
+      categories.add(category);
+    }
+    return categories;
   }
 //  void onCreateTableClient(Database db, int version) async {
 //    await db.execute(

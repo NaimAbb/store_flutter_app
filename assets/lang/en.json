@@ -37,7 +37,8 @@
   "PleaseEnterValidEmail" : "Please Enter Valid Email",
   "PleaseEnterPassword" : "Please Enter Password",
   "MorePassword" : "Password must contain 6 or more numbers",
-  "PleaseEnterType" : "Please Enter Type"
+  "PleaseEnterType" : "Please Enter Type",
+  "EmailExist" : "The email is exist !"
 
 
 }

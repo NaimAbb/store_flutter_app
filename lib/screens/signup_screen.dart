@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:store_flutter_app/db/db_helper.dart';
+import 'package:store_flutter_app/exceptions/email_exist_exception.dart';
 import 'package:store_flutter_app/localization/localization_constants.dart';
-import 'package:store_flutter_app/models/user.dart';
+import 'package:store_flutter_app/screens/client/client_home_screen.dart';
+import 'package:store_flutter_app/screens/merchant/merchant_home_screen.dart';
 import 'package:store_flutter_app/widgets/button_common.dart';
 import 'package:provider/provider.dart';
 import 'package:store_flutter_app/providers/auth.dart';
+import 'package:store_flutter_app/widgets/dialog_progress_widget.dart';
 
 class SignUpScreen extends StatefulWidget {
   static const String routeName = '/sign-up-screen';
@@ -16,8 +18,8 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  Auth _auth;
 
-  Auth _auth ;
   final _fromState = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -27,16 +29,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
   FocusNode _passwordFocusNode = FocusNode();
 
   String _typeUser;
-
+  bool _emailExist = false;
   final String _patternEmail =
       r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";
-
 
   @override
   void initState() {
     super.initState();
-    _auth = Provider.of<Auth>(context , listen: false);
+    _auth = Provider.of<Auth>(context, listen: false);
   }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -47,24 +49,42 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-
   Future<void> _signUpBtn() async {
+    _emailExist = false;
     bool result = _fromState.currentState.validate();
     if (!result) return;
-    final db = DBHelper();
-    User user = new User(_nameController.text, _emailController.text,
-        _typeUser == 'Client' ? Type.Client : Type.Merchant);
-    bool existResult = await db.searchAboutEmail(_emailController.text);
-    if (!existResult){
-      int responce = await db.addUser(user, _passwordController.text);
-      final users = await db.getUsers();
-      users.forEach((element) {
-        print(element.email);
-      });
-    }else{
-      print('Exist');
+    try {
+      _showProgressDialog();
+      await _auth.signUp(
+          name: _nameController.text,
+          email: _emailController.text,
+          type: _typeUser,
+          password: _passwordController.text);
+      Navigator.of(context).pop();
+      if (_typeUser == 'Client') {
+        Navigator.of(context).pushReplacementNamed(ClientHomeScreen.routeName);
+      } else {
+        Navigator.of(context)
+            .pushReplacementNamed(MerchantHomeScreen.routeName);
+      }
+    } on EmailExistException catch (error) {
+      Navigator.of(context).pop();
+      _emailExist = true;
+      _fromState.currentState.validate();
+    } catch (error) {
+      Navigator.of(context).pop();
     }
+  }
 
+  void _showProgressDialog() {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (_) {
+          return AlertDialog(
+            content: DialogProgressWidget(),
+          );
+        });
   }
 
   @override
@@ -92,7 +112,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: TextFormField(
                   textInputAction: TextInputAction.next,
-                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_emailFocusNode),
+                  onFieldSubmitted: (_) =>
+                      FocusScope.of(context).requestFocus(_emailFocusNode),
                   validator: (val) {
                     if (val == null || val.isEmpty) {
                       return getTranslated(context, 'PleaseEnterName');
@@ -110,7 +131,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: TextFormField(
-                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_passwordFocusNode),
+                  onFieldSubmitted: (_) =>
+                      FocusScope.of(context).requestFocus(_passwordFocusNode),
                   textInputAction: TextInputAction.next,
                   focusNode: _emailFocusNode,
                   validator: (val) {
@@ -119,6 +141,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     }
                     if (!RegExp(_patternEmail).hasMatch(val)) {
                       return getTranslated(context, 'PleaseEnterValidEmail');
+                    }
+                    if (_emailExist) {
+                      return getTranslated(context, 'EmailExist');
                     }
                     return null;
                   },
@@ -196,7 +221,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
               ButtonCommon(
                 getTranslated(context, 'SignUp'),
-                onPress: (){
+                onPress: () {
                   _signUpBtn();
                 },
               ),

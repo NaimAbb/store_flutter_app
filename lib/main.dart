@@ -16,6 +16,28 @@ import 'screens/client/my_order_screen.dart';
 import 'screens/client/details_product_screen.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth.dart';
+import 'utils/constants.dart';
+import 'localStorage/shared_preferences_local.dart';
+
+Future<Map<String, dynamic>> _init() async {
+  Map<String, dynamic> data = {};
+  Constants.sharedPreferencesLocal = await SharedPreferencesLocal.getInstance();
+   // await Constants.sharedPreferencesLocal.clear();
+    if (Constants.sharedPreferencesLocal.getIsLogin()) {
+    if (Constants.sharedPreferencesLocal.getTypeAccount() == 'Client') {
+      data['isLogin'] = true;
+      data['type'] = 'Client';
+    } else {
+      data['isLogin'] = true;
+      data['type'] = 'Merchant';
+    }
+  } else {
+    data['isLogin'] = false;
+  }
+  return data;
+
+  // Helpers.changeAppLang(AppShared.sharedPreferencesController.getAppLang());
+}
 
 //Locale locale;
 //
@@ -28,14 +50,19 @@ import 'providers/auth.dart';
 //}
 
 void main() async {
-//  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   // await _getLang();
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-  runApp(MyApp());
+  final data = await _init();
+  runApp(MyApp(data));
 }
 
 class MyApp extends StatefulWidget {
+  final Map<String, dynamic> data;
+
+  MyApp(this.data);
+
   static void setLocale(BuildContext context, Locale locale) {
     _MyAppState state = context.findAncestorStateOfType<_MyAppState>();
     state.setLocale(locale);
@@ -87,7 +114,11 @@ class _MyAppState extends State<MyApp> {
           GlobalCupertinoLocalizations.delegate
         ],
         debugShowCheckedModeBanner: false,
-        home: SignInScreen(),
+        home: widget.data['isLogin']
+            ? widget.data['type'] == 'Client'
+                ? ClientHomeScreen()
+                : MerchantHomeScreen()
+            : SignInScreen(),
         routes: {
           SignUpScreen.routeName: (_) => SignUpScreen(),
           MerchantHomeScreen.routeName: (_) => MerchantHomeScreen(),

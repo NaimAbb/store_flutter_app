@@ -1,11 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:store_flutter_app/localization/localization_constants.dart';
 import 'package:store_flutter_app/screens/client/cart_screen.dart';
 import 'package:store_flutter_app/screens/client/details_product_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:store_flutter_app/providers/client.dart';
+import 'dart:convert';
 
 class ClientHomeScreen extends StatefulWidget {
   static const String routeName = '/client-home-screen';

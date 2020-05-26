@@ -4,6 +4,7 @@ import 'package:sqflite/sqlite_api.dart';
 import 'dart:async';
 import 'dart:io' as io;
 import 'package:path/path.dart';
+import 'package:store_flutter_app/models/cart_item.dart';
 import 'package:store_flutter_app/models/category.dart';
 import 'package:store_flutter_app/models/product.dart';
 import 'package:store_flutter_app/models/user.dart';
@@ -13,6 +14,7 @@ class DBHelper {
   final String tableCategory = 'Category';
   final String tableProduct = 'product';
   final String tableProductUser = 'productUser';
+  final String tableCart = 'Cart';
 
   static Database dbInstance;
 
@@ -42,6 +44,9 @@ class DBHelper {
 
     await db.execute(
         'CREATE TABLE $tableProductUser (idUser INTEGER NOT NULL  , idProduct INTEGER NOT NULL ,FOREIGN KEY(idUser) REFERENCES $tableUser (id)  , FOREIGN KEY(idProduct) REFERENCES $tableProduct (id));');
+
+    await db.execute(
+        'CREATE TABLE $tableCart (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, idProdcut INTEGER NOT NULL , nameProduct TEXT NOT NULL , image TEXT NOT NULL ,totalPrice REAL NOT NULL ,quantity INTEGER NOT NULL,FOREIGN KEY(idProdcut) REFERENCES $tableProduct (id) )');
   }
 
   // || Operation User
@@ -200,12 +205,10 @@ class DBHelper {
     return products;
   }
 
-  Future<List<Product>> productsByCategory(int idCategory)async{
+  Future<List<Product>> productsByCategory(int idCategory) async {
     var dbConnection = await db();
-    List<Map> list =
-    await dbConnection.rawQuery('SELECT * FROM $tableProduct WHERE idCategory = ? ',[
-      idCategory
-    ]);
+    List<Map> list = await dbConnection.rawQuery(
+        'SELECT * FROM $tableProduct WHERE idCategory = ? ', [idCategory]);
     List<Product> products = new List();
     for (int i = 0; i < list.length; i++) {
       Product product = new Product(list[i]['name'], list[i]['price'],
@@ -216,7 +219,44 @@ class DBHelper {
       products.add(product);
     }
     return products;
+  }
 
+  Future<void> addToCard(CartItem cartItem) async {
+    var dbConnection = await db();
+    List<Map> list = await dbConnection.rawQuery(
+        'SELECT * FROM $tableCart WHERE idProdcut = ? ', [cartItem.idProdcut]);
+    if (list != null && list.isNotEmpty) {
+      var quantity = list[0]['quantity'] as int;
+      quantity = quantity + 1;
+      String query =
+          'UPDATE $tableCart SET quantity = ${quantity} WHERE idProdcut = ${cartItem.idProdcut}';
+      await dbConnection.transaction((transaction) async {
+        return await transaction.rawQuery(query);
+      });
+    } else {
+      String query =
+          'INSERT INTO $tableCart (nameProduct , image ,totalPrice ,quantity , idProdcut) VALUES (\'${cartItem.nameProduct}\', \'${cartItem.image}\',${cartItem.totalPrice} , \'${cartItem.quantity}\',${cartItem.idProdcut})';
+
+      int result = await dbConnection.transaction((transaction) async {
+        return await transaction.rawInsert(query);
+      });
+    }
+  }
+
+  Future<List<CartItem>> getCarts() async {
+    var dbConnection = await db();
+    List<Map> list = await dbConnection.rawQuery('SELECT * FROM $tableCart');
+    List<CartItem> cartItems = new List();
+
+    for (int i = 0; i < list.length; i++) {
+      print(list[i].toString());
+      print(list[i]['quantity']);
+      CartItem cartItem = new CartItem(list[i]['nameProduct'], list[i]['image'],
+          list[i]['totalPrice'], list[i]['quantity'], list[i]['idProdcut']);
+      cartItem.id = list[i]['id'].toString();
+      cartItems.add(cartItem);
+    }
+    return cartItems;
   }
 
 //  void onCreateTableClient(Database db, int version) async {

@@ -1,18 +1,15 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:store_flutter_app/db/db_helper.dart';
 import 'package:store_flutter_app/localization/localization_constants.dart';
 import 'package:store_flutter_app/models/category.dart';
 import 'package:store_flutter_app/models/product.dart';
 import 'package:store_flutter_app/providers/merchant.dart';
-import 'package:store_flutter_app/utils/constants.dart';
 import 'package:store_flutter_app/widgets/button_common.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-
 import 'package:store_flutter_app/widgets/error_dialog_widget.dart';
+import 'package:store_flutter_app/widgets/success_dialog_widget.dart';
+import 'dart:convert';
 
 class NewProductScreen extends StatefulWidget {
   static const String routeName = '/new-product-screen';
@@ -110,7 +107,7 @@ class _NewProductScreenState extends State<NewProductScreen> {
     if (_imageProduct == null) {
       showDialog(
           context: context,
-          builder: (_) => ErrorDialogWidget('must upload image'));
+          builder: (_) => ErrorDialogWidget(getTranslated(context, 'MustUploadImage')));
       return;
     }
     String base64 = base64Encode(_imageProduct.readAsBytesSync());
@@ -122,12 +119,14 @@ class _NewProductScreenState extends State<NewProductScreen> {
         double.parse(_priceProductController.text),
         int.parse(category.id),
         _duscriptionProductController.text);
-      product.image = base64;
+    product.image = base64;
 
-      await DBHelper().addProduct(product,int.parse(Constants.sharedPreferencesLocal.getUserId()));
+    await _merchant.addProduct(product);
+    await showDialog(
+        context: context, builder: (_) => SuccessDialogWidget('Success'));
+    Navigator.of(context).pop();
 
-      DBHelper().getProducts();
-
+    //  DBHelper().getProducts();
   }
 
   @override
@@ -263,6 +262,9 @@ class _NewProductScreenState extends State<NewProductScreen> {
                 onPress: () {
                   _save();
                 },
+              ),
+              SizedBox(
+                height: 20,
               )
             ],
           ),

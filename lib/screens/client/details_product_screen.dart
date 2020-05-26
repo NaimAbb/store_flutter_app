@@ -1,11 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:store_flutter_app/localization/localization_constants.dart';
+import 'package:store_flutter_app/models/product.dart';
 
 class DetailsProductScreen extends StatelessWidget {
   static const String routeName = '/details-product-screen';
 
   @override
   Widget build(BuildContext context) {
+    final dataProduct = ModalRoute.of(context).settings.arguments as Product;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -20,8 +24,8 @@ class DetailsProductScreen extends StatelessWidget {
             SizedBox(
               height: 20,
             ),
-            Image.network(
-              'https://www.thefuss.co.uk/wp-content/uploads/2017/09/Must-have-New-Look-maternity-pieces.jpg',
+            Image.memory(
+            base64Decode(dataProduct.image) ,
               height: 200,
               fit: BoxFit.fill,
             ),
@@ -31,7 +35,7 @@ class DetailsProductScreen extends StatelessWidget {
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
-                  'Muslim Form',
+                  dataProduct.name,
                   style: const TextStyle(color: Colors.black, fontSize: 20),
                 )),
             SizedBox(
@@ -40,7 +44,7 @@ class DetailsProductScreen extends StatelessWidget {
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
-                  '\$42',
+                  '\$${dataProduct.price}',
                   style: const TextStyle(color: Colors.grey, fontSize: 17),
                 )),
             SizedBox(
@@ -57,8 +61,7 @@ class DetailsProductScreen extends StatelessWidget {
             ),
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text(
-                  'asdjklasjdakldjalkdjaldjaldjkaldjaldjaldjasldjasldjasldjasldjasldjasldjaslkdjasldjasldjaldjaldjaldjasldjladjlasdjaldjaldjaljdlasjdl',
+                child: Text(dataProduct.description,
                   style: const TextStyle(color: Colors.black87, fontSize: 16),
                 )),
           ],

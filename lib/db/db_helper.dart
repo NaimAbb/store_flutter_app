@@ -35,7 +35,7 @@ class DBHelper {
     await db.execute(
         'CREATE TABLE $tableUser (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL  , name TEXT NOT NULL , email TEXT NOT NULL , password TEXT NOT NULL ,  type TEXT NOT NULL );');
     await db.execute(
-        'CREATE TABLE $tableCategory (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , name TEXT NOT NULL);');
+        'CREATE TABLE $tableCategory (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , name TEXT NOT NULL , imageUrl TEXT NOT NULL);');
 
     await db.execute(
         'CREATE TABLE $tableProduct (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , name TEXT NOT NULL ,duscription TEXT NOT NULL, price REAL NOT NULL , image TEXT NOT NULL,idCategory INTEGER NOT NULL , FOREIGN KEY(idCategory) REFERENCES $tableCategory (id));');
@@ -106,11 +106,30 @@ class DBHelper {
 
   Future<void> addCategories() async {
     var dbConnection = await db();
-    List<String> categories = ['Womman', 'Man', 'Kids'];
 
-    for (String item in categories) {
+    List<Map<String, String>> categories = [
+      {
+        'title': 'Womman',
+        'imageUrl':
+            'https://i.pinimg.com/originals/8b/41/8b/8b418bcaa7d54f0ce0e5ca055bbe5a09.jpg'
+      },
+      {
+        'title': 'Man',
+        'imageUrl':
+            'https://rafettna.xyz/wp-content/uploads/2018/10/print-t-shirt-blue.jpg'
+      },
+      {
+        'title': 'Kids',
+        'imageUrl':
+            'https://i.pinimg.com/originals/06/64/81/06648122aa596e282a951408589c6d01.jpg'
+      }
+    ];
+    //  List<String> categories = ['Womman', 'Man', 'Kids'];
+
+    for (Map<String, String> item in categories) {
       print(item);
-      String query = 'INSERT INTO $tableCategory (name) VALUES (\'${item}\')';
+      String query =
+          'INSERT INTO $tableCategory (name , imageUrl) VALUES (\'${item['title']}\' , \'${item['imageUrl']}\')';
       int result = await dbConnection.transaction((transaction) async {
         return await transaction.rawInsert(query);
       });
@@ -163,6 +182,43 @@ class DBHelper {
     }
     return products;
   }
+
+  Future<List<Product>> getProductFeatured() async {
+    var dbConnection = await db();
+    List<Map> list =
+        await dbConnection.rawQuery('SELECT * FROM $tableProduct LIMIT 10');
+    List<Product> products = new List();
+
+    for (int i = 0; i < list.length; i++) {
+      Product product = new Product(list[i]['name'], list[i]['price'],
+          list[i]['idCategory'], list[i]['duscription']);
+      product.image = list[i]['image'];
+      product.id = list[i]['id'].toString();
+      print(product.idCategory);
+      products.add(product);
+    }
+    return products;
+  }
+
+  Future<List<Product>> productsByCategory(int idCategory)async{
+    var dbConnection = await db();
+    List<Map> list =
+    await dbConnection.rawQuery('SELECT * FROM $tableProduct WHERE idCategory = ? ',[
+      idCategory
+    ]);
+    List<Product> products = new List();
+    for (int i = 0; i < list.length; i++) {
+      Product product = new Product(list[i]['name'], list[i]['price'],
+          list[i]['idCategory'], list[i]['duscription']);
+      product.image = list[i]['image'];
+      product.id = list[i]['id'].toString();
+      print(product.idCategory);
+      products.add(product);
+    }
+    return products;
+
+  }
+
 //  void onCreateTableClient(Database db, int version) async {
 //    await db.execute(
 //        'CREATE TABLE $tableNameClient (id TEXT PRIMARY KEY NOT NULL  , userName TEXT NOT NULL , age INTEGER NOT NULL , imageUrl TEXT NOT NULL , typeAccount INTEGER NOT NULL , email TEXT NOT NULL, phoneNumber TEXT NOT NULL , codeIntroduction TEXT NOT NULL  );');

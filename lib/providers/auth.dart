@@ -43,4 +43,8 @@ class Auth extends ChangeNotifier {
       throw error;
     }
   }
+
+  Future<void> signOut()async{
+    await Constants.sharedPreferencesLocal.clear();
+  }
 }

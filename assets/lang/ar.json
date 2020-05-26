@@ -39,5 +39,7 @@
   "MorePassword" : "يجب ان تحتوي كلمة المرور على ٦ ارقام فاكثر",
   "PleaseEnterType" : "الرجاء ادخال النوع",
   "EmailExist" : "البريد الالكتروني موجود بالفعل!",
-  "PleaseFillThisField" : "الرجاء مليء هذا الحقل"
+  "PleaseFillThisField" : "الرجاء مليء هذا الحقل",
+  "MustUploadImage" : "يجب رفع صورة للمنتج!",
+  "Featured" : "متميز"
 }

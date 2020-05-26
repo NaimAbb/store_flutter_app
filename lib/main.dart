@@ -19,6 +19,7 @@ import 'providers/auth.dart';
 import 'utils/constants.dart';
 import 'localStorage/shared_preferences_local.dart';
 import 'providers/merchant.dart';
+import 'providers/client.dart';
 
 Future<Map<String, dynamic>> _init() async {
   Map<String, dynamic> data = {};
@@ -90,7 +91,8 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: Auth()),
-        ChangeNotifierProvider.value(value: Merchant())
+        ChangeNotifierProvider.value(value: Merchant()),
+        ChangeNotifierProvider.value(value: Client())
       ],
       child: MaterialApp(
         localeResolutionCallback: (deviceLocale, supportedLocales) {

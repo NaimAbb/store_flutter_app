@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:store_flutter_app/localization/localization_constants.dart';
-import 'package:store_flutter_app/models/address.dart';
+import 'package:store_flutter_app/models/modelsProvider/address.dart';
 import 'package:store_flutter_app/screens/client/add_new_address_screen.dart';
 import 'package:store_flutter_app/screens/client/my_order_screen.dart';
 import 'package:store_flutter_app/utils/constants.dart';

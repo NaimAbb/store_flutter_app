@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:store_flutter_app/db/db_helper.dart';
-import 'package:store_flutter_app/models/address.dart';
+import 'package:store_flutter_app/models/modelsProvider/address.dart';
 import 'package:store_flutter_app/models/cart_item.dart';
 import 'package:store_flutter_app/models/category.dart';
 import 'package:store_flutter_app/models/product.dart';

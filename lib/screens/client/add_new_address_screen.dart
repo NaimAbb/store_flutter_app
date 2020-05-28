@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:store_flutter_app/localization/localization_constants.dart';
-import 'package:store_flutter_app/models/address.dart';
+import 'package:store_flutter_app/models/modelsProvider/address.dart';
 import 'package:store_flutter_app/utils/constants.dart';
 import 'package:store_flutter_app/widgets/button_common.dart';
 import 'package:provider/provider.dart';

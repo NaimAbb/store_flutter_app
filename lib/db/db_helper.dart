@@ -4,7 +4,7 @@ import 'package:sqflite/sqlite_api.dart';
 import 'dart:async';
 import 'dart:io' as io;
 import 'package:path/path.dart';
-import 'package:store_flutter_app/models/address.dart';
+import 'package:store_flutter_app/models/modelsProvider/address.dart';
 import 'package:store_flutter_app/models/cart_item.dart';
 import 'package:store_flutter_app/models/category.dart';
 import 'package:store_flutter_app/models/product.dart';

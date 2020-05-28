@@ -4,6 +4,7 @@ import 'package:sqflite/sqlite_api.dart';
 import 'dart:async';
 import 'dart:io' as io;
 import 'package:path/path.dart';
+import 'package:store_flutter_app/models/address.dart';
 import 'package:store_flutter_app/models/cart_item.dart';
 import 'package:store_flutter_app/models/category.dart';
 import 'package:store_flutter_app/models/product.dart';
@@ -15,6 +16,7 @@ class DBHelper {
   final String tableProduct = 'product';
   final String tableProductUser = 'productUser';
   final String tableCart = 'Cart';
+  final String tableAddress = 'Address';
 
   static Database dbInstance;
 
@@ -47,6 +49,9 @@ class DBHelper {
 
     await db.execute(
         'CREATE TABLE $tableCart (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, idProdcut INTEGER NOT NULL , nameProduct TEXT NOT NULL , image TEXT NOT NULL ,totalPrice REAL NOT NULL ,quantity INTEGER NOT NULL,FOREIGN KEY(idProdcut) REFERENCES $tableProduct (id) )');
+
+    await db.execute(
+        'CREATE TABLE $tableAddress (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , idUser INTEGER NOT NULL , name TEXT NOT NULL ,addressLane TEXT NOT NULL , city TEXT NOT NULL , postalCode TEXT NOT NULL , phoneNumber TEXT NOT NULL , FOREIGN KEY(idUser) REFERENCES $tableUser (id) )');
   }
 
   // || Operation User
@@ -257,6 +262,51 @@ class DBHelper {
       cartItems.add(cartItem);
     }
     return cartItems;
+  }
+
+  Future<void> reducingTheQuantity(int idProduct) async {
+    var dbConnection = await db();
+    List<Map> list = await dbConnection
+        .rawQuery('SELECT * FROM $tableCart WHERE idProdcut = ? ', [idProduct]);
+    if (list != null && list.isNotEmpty) {
+      var quantity = list[0]['quantity'] as int;
+      quantity = quantity - 1;
+      String query =
+          'UPDATE $tableCart SET quantity = ${quantity} WHERE idProdcut = ${idProduct}';
+      await dbConnection.transaction((transaction) async {
+        return await transaction.rawQuery(query);
+      });
+    }
+  }
+
+  Future<void> deleteItemFromCart(int idProduct) async {
+    var dbConnection = await db();
+    String query = 'DELETE FROM $tableCart  WHERE idProdcut = ${idProduct}';
+    await dbConnection.transaction((transaction) async {
+      return await transaction.rawQuery(query);
+    });
+  }
+
+  Future<void> addAddress(Address address) async {
+    var dbConnection = await db();
+    String query =
+        'INSERT INTO $tableAddress (idUser , name ,addressLane ,city , postalCode , phoneNumber) VALUES (${address.idUser}, \'${address.name}\',\'${address.addressLane}\', \'${address.city}\',\'${address.postalCode}\' , \'${address.phoneNumber}\')';
+
+    int result = await dbConnection.transaction((transaction) async {
+      return await transaction.rawInsert(query);
+    });
+  }
+
+  Future<List<Address>> getAddressForUser(int idUser) async {
+    List<Address> addressAll = [];
+    var dbConnection = await db();
+    List<Map> list = await dbConnection
+        .rawQuery('SELECT * FROM $tableAddress WHERE idUser = ? ', [idUser]);
+    for (var address in list) {
+      Address addressUser = Address.formJson(address);
+      addressAll.add(addressUser);
+    }
+    return addressAll;
   }
 
 //  void onCreateTableClient(Database db, int version) async {

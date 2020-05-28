@@ -92,7 +92,7 @@ class _MyAppState extends State<MyApp> {
       providers: [
         ChangeNotifierProvider.value(value: Auth()),
         ChangeNotifierProvider.value(value: Merchant()),
-        ChangeNotifierProvider.value(value: Client())
+        ChangeNotifierProvider.value(value: Client()),
       ],
       child: MaterialApp(
         localeResolutionCallback: (deviceLocale, supportedLocales) {

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:store_flutter_app/localization/localization_constants.dart';
+import 'package:store_flutter_app/models/cart_item.dart';
 import 'package:store_flutter_app/screens/client/address_screen.dart';
 import 'package:store_flutter_app/widgets/button_common.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +23,9 @@ class _CartScreenState extends State<CartScreen> {
   bool _isFirst = true;
   bool _isLoading = true;
 
-  Widget _buildItemCart(String image, String title, int amount , double price) {
+  int count = 0;
+
+  Widget _buildItemCart(String image, String title, int amount, double price) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Card(
@@ -32,19 +35,21 @@ class _CartScreenState extends State<CartScreen> {
               base64Decode(image),
               width: 120,
               height: 120,
-              fit: BoxFit.contain,
+              fit: BoxFit.cover,
+            ),
+            SizedBox(
+              width: 10,
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(title),
-                Text('Lotto.LTD'),
                 Text(
                   '${price}\$',
                   style: TextStyle(color: Colors.blue),
                 ),
                 SizedBox(
-                  height: 10,
+                  height: 20,
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -62,9 +67,16 @@ class _CartScreenState extends State<CartScreen> {
                         amount.toString(),
                         style: TextStyle(fontSize: 17),
                       ),
-                      Text(
-                        '+',
-                        style: TextStyle(fontSize: 20),
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            amount + 1;
+                          });
+                        },
+                        child: Text(
+                          '+',
+                          style: TextStyle(fontSize: 20),
+                        ),
                       )
                     ],
                   ),
@@ -107,32 +119,35 @@ class _CartScreenState extends State<CartScreen> {
           ? Center(
               child: CircularProgressIndicator(),
             )
-          : SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  SizedBox(
-                    height: 20,
+          : _client.carts.isEmpty
+              ? Center(
+                  child: Text('Empty'),
+                )
+              : SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                            getTranslated(context, 'Cart'),
+                            style: const TextStyle(
+                                color: Colors.black, fontSize: 25),
+                          )),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Column(
+                        children: _client.carts.map((item) {
+                          return _CartItem(item  , ValueKey(item.id));
+                        }).toList(),
+                      ),
+                    ],
                   ),
-                  Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Text(
-                        getTranslated(context, 'Cart'),
-                        style:
-                            const TextStyle(color: Colors.black, fontSize: 25),
-                      )),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Column(
-                    children: _client.carts.map((item) {
-                      return _buildItemCart(
-                          item.image, item.nameProduct, item.quantity , item.totalPrice);
-                    }).toList(),
-                  ),
-                ],
-              ),
-            ),
+                ),
       bottomSheet: Container(
           margin: const EdgeInsets.only(bottom: 10, top: 10),
           height: 50,
@@ -143,5 +158,123 @@ class _CartScreenState extends State<CartScreen> {
             },
           )),
     );
+  }
+}
+
+class _CartItem extends StatefulWidget {
+  final CartItem cartItem;
+  final Key key;
+
+  const _CartItem(this.cartItem, this.key) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _CartItemState();
+  }
+}
+
+class _CartItemState extends State<_CartItem> {
+  Client _client;
+  bool _isFirst = true;
+  int _amount = 0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isFirst) {
+      _client = Provider.of<Client>(context);
+      _amount = widget.cartItem.quantity;
+    }
+    _isFirst = false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Card(
+        child: Row(
+          children: <Widget>[
+            Image.memory(
+              base64Decode(widget.cartItem.image),
+              width: 120,
+              height: 120,
+              fit: BoxFit.cover,
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(widget.cartItem.nameProduct),
+                Text(
+                  '${widget.cartItem.totalPrice}\$',
+                  style: TextStyle(color: Colors.blue),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                StatefulBuilder(builder: (_, StateSetter setState) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    height: 30,
+                    width: 90,
+                    color: Colors.grey[100],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        InkWell(
+                          onTap: () {
+                            if (_amount > 1) {
+                              setState(() {
+                                _amount = _amount - 1;
+                                _client.reducingTheQuantity(
+                                    widget.cartItem.idProdcut);
+                                _client.getCount();
+                              });
+                            }
+                          },
+                          child: Text(
+                            '-',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ),
+                        Text(
+                          _amount.toString(),
+                          style: TextStyle(fontSize: 17),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            setState(() async{
+                              _amount = _amount + 1;
+                             await _client.addToCart(widget.cartItem);
+                              await _client.getCount();
+                            });
+                          },
+                          child: Text(
+                            '+',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                })
+              ],
+            ),
+            Spacer(),
+            IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () async {
+                await _client.deleteItemFromCart(widget.cartItem.idProdcut);
+                _client.getCount();
+              },
+            )
+          ],
+        ),
+      ),
+    );
+    ;
   }
 }

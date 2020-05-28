@@ -132,13 +132,14 @@ class _NewProductScreenState extends State<NewProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(elevation: 0,backgroundColor: Colors.white,iconTheme: IconThemeData(color: Colors.black),),
       body: Form(
         key: _formState,
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
               SizedBox(
-                height: 100,
+                height: 50,
               ),
               Selector<Merchant, bool>(
                 selector: (_, value) => value.valueChooseImage,

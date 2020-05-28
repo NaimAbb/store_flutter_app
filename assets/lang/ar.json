@@ -41,5 +41,7 @@
   "EmailExist" : "البريد الالكتروني موجود بالفعل!",
   "PleaseFillThisField" : "الرجاء مليء هذا الحقل",
   "MustUploadImage" : "يجب رفع صورة للمنتج!",
-  "Featured" : "متميز"
+  "Featured" : "متميز",
+  "NoAddressAdded" : "لا يوجد عنوان !",
+  "AddressAdded" : "تم اضافة العنوان"
 }

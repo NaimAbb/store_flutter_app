@@ -27,30 +27,32 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
           return <Widget>[
             SliverAppBar(
               actions: <Widget>[
-                Stack(
-                  children: <Widget>[
-                    IconButton(
-                        icon: Icon(Icons.shopping_cart),
-                        onPressed: () {
-                          Navigator.of(context).pushNamed(CartScreen.routeName);
-                        }),
-                    Positioned(
-                      top: 2,
-                      child: CircleAvatar(
-                          backgroundColor: Colors.grey[300],
-                          radius: 10,
-                          child: Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: FittedBox(
-                              child: Text(
-                                '10',
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          )),
-                    )
-                  ],
-                )
+               Selector<Client , int>(builder: (_ ,total,___){
+                 return Stack(
+                   children: <Widget>[
+                     IconButton(
+                         icon: Icon(Icons.shopping_cart),
+                         onPressed: () {
+                           Navigator.of(context).pushNamed(CartScreen.routeName);
+                         }),
+                     Positioned(
+                       top: 2,
+                       child: CircleAvatar(
+                           backgroundColor: Colors.grey[300],
+                           radius: 10,
+                           child: Padding(
+                             padding: const EdgeInsets.all(2.0),
+                             child: FittedBox(
+                               child: Text(
+                                 total.toString(),
+                                 style: TextStyle(color: Colors.red),
+                               ),
+                             ),
+                           )),
+                     )
+                   ],
+                 );
+               }, selector: (_ , value) => value.totalItemInCart)
               ],
               iconTheme: IconThemeData(color: Colors.black),
               elevation: 0,
@@ -247,6 +249,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
     try{
      await _getProductFeatured();
      await _getCategories();
+     await _client.getCount();
      _isFirst = false;
     }catch(error){
 

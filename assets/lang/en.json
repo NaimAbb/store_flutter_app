@@ -41,7 +41,9 @@
   "EmailExist" : "The email is exist !",
   "PleaseFillThisField" : "Please fill this field",
   "MustUploadImage" : "must upload image",
-  "Featured" : "Featured"
+  "Featured" : "Featured",
+  "NoAddressAdded" : "No Address Added !",
+  "AddressAdded" : "AddressAdded"
 
 
 }

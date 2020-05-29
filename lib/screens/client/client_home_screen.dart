@@ -5,6 +5,7 @@ import 'package:store_flutter_app/screens/client/details_product_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:store_flutter_app/providers/client.dart';
 import 'dart:convert';
+import 'package:store_flutter_app/widgets/drawer_layout.dart';
 
 class ClientHomeScreen extends StatefulWidget {
   static const String routeName = '/client-home-screen';
@@ -276,6 +277,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
     return SafeArea(
       top: false,
       child: Scaffold(
+        drawer: DrawerLayout(),
         backgroundColor: Colors.white,
         body: _isLoading ? Center(child: CircularProgressIndicator(),): _buildPage(mediaQuery),
 //        body: SingleChildScrollView(

@@ -106,11 +106,15 @@ class _CartScreenState extends State<CartScreen> {
     _isFirst = false;
   }
 
+  double total = 0;
+
   @override
   Widget build(BuildContext context) {
+    total = 0;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        leading: BackButton(),
         iconTheme: IconThemeData(color: Colors.black),
         elevation: 0,
         backgroundColor: Colors.white,
@@ -142,7 +146,8 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                       Column(
                         children: _client.carts.map((item) {
-                          return _CartItem(item  , ValueKey(item.id));
+                          total += item.totalPrice * item.quantity;
+                          return _CartItem(item, ValueKey(item.id));
                         }).toList(),
                       ),
                     ],
@@ -150,12 +155,20 @@ class _CartScreenState extends State<CartScreen> {
                 ),
       bottomSheet: Container(
           margin: const EdgeInsets.only(bottom: 10, top: 10),
-          height: 50,
-          child: ButtonCommon(
-            getTranslated(context, 'Continue'),
-            onPress: () {
-              Navigator.of(context).pushNamed(AddressScreen.routeName);
-            },
+          height: 90,
+          child: Column(
+            children: <Widget>[
+              Text('total price : \$$total'),
+              SizedBox(
+                height: 10,
+              ),
+              ButtonCommon(
+                getTranslated(context, 'Continue'),
+                onPress: () {
+                  Navigator.of(context).pushNamed(AddressScreen.routeName);
+                },
+              )
+            ],
           )),
     );
   }
@@ -246,9 +259,9 @@ class _CartItemState extends State<_CartItem> {
                         ),
                         InkWell(
                           onTap: () {
-                            setState(() async{
+                            setState(() async {
                               _amount = _amount + 1;
-                             await _client.addToCart(widget.cartItem);
+                              await _client.addToCart(widget.cartItem);
                               await _client.getCount();
                             });
                           },

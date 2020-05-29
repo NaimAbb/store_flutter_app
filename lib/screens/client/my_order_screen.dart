@@ -1,32 +1,52 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:store_flutter_app/localization/localization_constants.dart';
+import 'package:store_flutter_app/screens/client/cart_screen.dart';
+import 'package:store_flutter_app/screens/client/client_home_screen.dart';
+import 'package:store_flutter_app/utils/constants.dart';
 import 'package:store_flutter_app/widgets/button_common.dart';
+import 'package:store_flutter_app/models/order.dart';
+import 'package:provider/provider.dart';
+import 'package:store_flutter_app/providers/client.dart';
 
 class MyOrderScreen extends StatelessWidget {
   static const String routeName = '/my-order-screen';
-  Widget buildItemOrder(BuildContext context){
-    return   Padding(
+
+  Widget buildItemOrder(
+      BuildContext context, String image, int orderId, double totalPrice) {
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Card(
         child: Row(
           children: <Widget>[
-            Image.network(
-              'https://img1.theiconic.com.au/rk9NZqAK1JFnDCaehXUmI1e-4b4=/fit-in/770x1160/filters:fill(ffffff,1):quality(90):format(jpeg)/https%3A%2F%2Fimages.prismic.io%2Ftheiconic-content-service%2F55ae3391-f207-49dd-a08b-3e5522306690_ShopAll.jpg',
+            Image.memory(
+              base64Decode(image),
               width: 120,
               height: 120,
               fit: BoxFit.cover,
-            ),
+            ),SizedBox(width: 10,),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text('OrderId'),
+                Text('$orderId'),
                 Text('Lotto.LTD'),
                 Text(
-                  '34.00\$',
+                  '$totalPrice\$',
                   style: TextStyle(color: Colors.blue),
-                ),SizedBox(height: 10,),
-               ButtonCommon(getTranslated(context, 'OrderAgain')),
-                SizedBox(height: 10,)
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                ButtonCommon(
+                  getTranslated(context, 'OrderAgain'),
+                  onPress: () {
+
+                  },
+                ),
+                SizedBox(
+                  height: 10,
+                )
               ],
             )
           ],
@@ -37,9 +57,22 @@ class MyOrderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final data = ModalRoute.of(context).settings.arguments as int ?? 0;
+    Provider.of<Client>(context , listen: false).getOrdersForClient(int.parse(Constants.sharedPreferencesLocal.getUserId()));
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        leading: BackButton(
+          onPressed: () {
+            if (data == 1) {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                  ClientHomeScreen.routeName,
+                  ModalRoute.withName(CartScreen.routeName));
+            } else {
+              Navigator.of(context).pop();
+            }
+          },
+        ),
         elevation: 0,
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
@@ -48,16 +81,32 @@ class MyOrderScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
                   getTranslated(context, 'MyOrders'),
                   style: const TextStyle(color: Colors.black, fontSize: 22),
                 )),
+            SizedBox(
+              height: 40,
+            ),
 
-            SizedBox(height: 40,),
-            Column(children: List.generate(10, (index) => buildItemOrder(context)),)
+            Selector<Client, List<Order>>(
+                builder: (_, List<Order> getOrders, __) {
+                  return Column(
+                    children: List.generate(
+                        getOrders.length,
+                        (index) => buildItemOrder(
+                            context,
+                            getOrders[index].image,
+                            getOrders[index].id,
+                            getOrders[index].totalPrice)),
+                  );
+                },
+                selector: (_, value) => value.getOrders),
           ],
         ),
       ),

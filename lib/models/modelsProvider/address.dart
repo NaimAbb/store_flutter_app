@@ -29,7 +29,6 @@ class Address extends ChangeNotifier {
   }
 
   void changeValueSelected(int value){
-    print(value);
     _indexSelected = value;
     notifyListeners();
   }

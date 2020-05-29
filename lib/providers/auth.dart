@@ -36,6 +36,7 @@ class Auth extends ChangeNotifier {
         await Constants.sharedPreferencesLocal.setUserId(responce.toString());
         await Constants.sharedPreferencesLocal.setIsLogin(true);
         await Constants.sharedPreferencesLocal.setTypeAccount(type);
+        await _db.addCategories();
       } else {
         throw EmailExistException('Email is exist !');
       }

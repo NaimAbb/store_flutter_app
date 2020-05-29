@@ -86,6 +86,8 @@ class DetailsProductScreen extends StatelessWidget {
                     int.parse(dataProduct.id));
                 await Provider.of<Client>(context, listen: false)
                     .addToCart(cartItem);
+                await Provider.of<Client>(context, listen: false)
+                    .getCount();
                 _scaffoldState.currentState.hideCurrentSnackBar();
                 _scaffoldState.currentState.showSnackBar(SnackBar(content: Text('add success to cart') , ));
               },

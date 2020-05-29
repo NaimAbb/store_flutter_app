@@ -3,6 +3,7 @@ import 'package:store_flutter_app/db/db_helper.dart';
 import 'package:store_flutter_app/models/modelsProvider/address.dart';
 import 'package:store_flutter_app/models/cart_item.dart';
 import 'package:store_flutter_app/models/category.dart';
+import 'package:store_flutter_app/models/order.dart';
 import 'package:store_flutter_app/models/product.dart';
 
 class Client extends ChangeNotifier {
@@ -12,6 +13,7 @@ class Client extends ChangeNotifier {
   List<Product> _productByCategory = [];
   List<Address> _allAddress = [];
   List<CartItem> _carts = [];
+  List<Order> _orders = [];
 
   int _totalItemInCart = 0;
 
@@ -26,6 +28,8 @@ class Client extends ChangeNotifier {
   List<Category> get categories => [..._categories];
 
   List<CartItem> get carts => [..._carts];
+
+  List<Order> get getOrders => [..._orders];
 
   Future<void> getCategories() async {
     try {
@@ -102,13 +106,13 @@ class Client extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addAddress(Address address)async{
-    try{
-
-     await _db.addAddress(address);
-     _allAddress.add(address);
-     notifyListeners();
-    }catch(error){
+  Future<void> addAddress(Address address) async {
+    try {
+      final id = await _db.addAddress(address);
+      address.id = id;
+      _allAddress.add(address);
+      notifyListeners();
+    } catch (error) {
       throw error;
     }
   }
@@ -117,6 +121,27 @@ class Client extends ChangeNotifier {
     try {
       final address = await _db.getAddressForUser(idUser);
       _allAddress = address;
+      notifyListeners();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  Future<void> addOrder(int idClient, int idAddress) async {
+    try {
+      await _db.addOrder(_carts, idClient, idAddress);
+      _carts.forEach((element) async {
+        await deleteItemFromCart(element.idProdcut);
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  Future<void> getOrdersForClient(int idClient) async {
+    try {
+      final orders = await _db.getOrdersForClient(idClient);
+      _orders = orders;
       notifyListeners();
     } catch (error) {
       throw error;

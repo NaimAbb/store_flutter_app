@@ -7,6 +7,7 @@ import 'package:path/path.dart';
 import 'package:store_flutter_app/models/modelsProvider/address.dart';
 import 'package:store_flutter_app/models/cart_item.dart';
 import 'package:store_flutter_app/models/category.dart';
+import 'package:store_flutter_app/models/order.dart';
 import 'package:store_flutter_app/models/product.dart';
 import 'package:store_flutter_app/models/user.dart';
 
@@ -17,6 +18,8 @@ class DBHelper {
   final String tableProductUser = 'productUser';
   final String tableCart = 'Cart';
   final String tableAddress = 'Address';
+  final String tableOrderProduct = 'OrderProduct';
+  final String tableOrderDetails = 'OrderDetails';
 
   static Database dbInstance;
 
@@ -52,6 +55,12 @@ class DBHelper {
 
     await db.execute(
         'CREATE TABLE $tableAddress (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , idUser INTEGER NOT NULL , name TEXT NOT NULL ,addressLane TEXT NOT NULL , city TEXT NOT NULL , postalCode TEXT NOT NULL , phoneNumber TEXT NOT NULL , FOREIGN KEY(idUser) REFERENCES $tableUser (id) )');
+
+    await db.execute(
+        'CREATE TABLE $tableOrderProduct (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , totlaPrice REAR NOT NULL  , description TEXT , idClient INTEGER NOT NULL ,idAddress INTEGER NOT NULL,FOREIGN KEY(idAddress) REFERENCES $tableAddress (id),  FOREIGN KEY(idClient) REFERENCES $tableUser (id));');
+
+    await db.execute(
+        'CREATE TABLE $tableOrderDetails (idOrder INTEGER NOT NULL , idProdcut INTEGER NOT NULL , idMerchant INTEGER NOT NULL , idAddress INTEGER NOT NULL ,quantity INTEGER NOT NULL  , FOREIGN KEY(idAddress) REFERENCES $tableAddress (id), FOREIGN KEY(idOrder) REFERENCES $tableOrderProduct (id) , FOREIGN KEY(idProdcut) REFERENCES $tableProduct (id) ,  FOREIGN KEY(idMerchant) REFERENCES $tableUser (id));');
   }
 
   // || Operation User
@@ -135,7 +144,9 @@ class DBHelper {
       }
     ];
     //  List<String> categories = ['Womman', 'Man', 'Kids'];
+    List<Map> list = await dbConnection.rawQuery('SELECT * FROM $tableCategory');
 
+    if (list != null && list.isNotEmpty) return;
     for (Map<String, String> item in categories) {
       print(item);
       String query =
@@ -287,14 +298,15 @@ class DBHelper {
     });
   }
 
-  Future<void> addAddress(Address address) async {
+  Future<int> addAddress(Address address) async {
     var dbConnection = await db();
     String query =
         'INSERT INTO $tableAddress (idUser , name ,addressLane ,city , postalCode , phoneNumber) VALUES (${address.idUser}, \'${address.name}\',\'${address.addressLane}\', \'${address.city}\',\'${address.postalCode}\' , \'${address.phoneNumber}\')';
 
-    int result = await dbConnection.transaction((transaction) async {
+    int id = await dbConnection.transaction((transaction) async {
       return await transaction.rawInsert(query);
     });
+    return id;
   }
 
   Future<List<Address>> getAddressForUser(int idUser) async {
@@ -309,58 +321,52 @@ class DBHelper {
     return addressAll;
   }
 
-//  void onCreateTableClient(Database db, int version) async {
-//    await db.execute(
-//        'CREATE TABLE $tableNameClient (id TEXT PRIMARY KEY NOT NULL  , userName TEXT NOT NULL , age INTEGER NOT NULL , imageUrl TEXT NOT NULL , typeAccount INTEGER NOT NULL , email TEXT NOT NULL, phoneNumber TEXT NOT NULL , codeIntroduction TEXT NOT NULL  );');
-//  }
-//
-//  void onCreateTableTechnician(Database db, int version) async {
-//    await db.execute(
-//        'CREATE TABLE $tableNameTechnician (id TEXT PRIMARY KEY NOT NULL  , userName TEXT NOT NULL , age INTEGER NOT NULL , imageUrl TEXT NOT NULL , typeAccount INTEGER NOT NULL , email TEXT NOT NULL, phoneNumber TEXT NOT NULL , codeIntroduction TEXT NOT NULL , fullTechnicianMaintenanceName TEXT NOT NULL , qualifications TEXT );');
-//  }
-//
-//  void onCreateTableWorkshop(Database db, int version) async {
-//    await db.execute(
-//        'CREATE TABLE $tableNameWorkshop (id TEXT PRIMARY KEY NOT NULL , userName TEXT NOT NULL ,fullEngineerName TEXT NOT NULL ,  age INTEGER NOT NULL , imageUrl TEXT NOT NULL , typeAccount INTEGER NOT NULL , email TEXT NOT NULL, phoneNumber TEXT NOT NULL , codeIntroduction TEXT NOT NULL , latitude REAL NOT NULL , longitude REAL NOT NULL , address TEXT NOT NULL  );');
-//  }
+  Future<void> addOrder(
+      List<CartItem> items, int idClient, int idAddress) async {
+    var dbConnection = await db();
+    double totalPrice = 0;
+    items.forEach((element) {
+      double totalItem = element.totalPrice * element.quantity;
+      totalPrice += totalItem;
+    });
+    String query =
+        'INSERT INTO $tableOrderProduct (totlaPrice , description , idClient , idAddress) VALUES (${totalPrice} , \'${''}\' , ${idClient} , ${idAddress})';
+    int idOrder = await dbConnection.transaction((transaction) async {
+      return await transaction.rawInsert(query);
+    });
+    for (var item in items) {
+      int idProduct = item.idProdcut;
+      List<Map> list = await dbConnection.rawQuery(
+          'SELECT idUser FROM $tableProductUser WHERE idProduct = ? ',
+          [idProduct]);
+      final idMerchant = list[0]['idUser'] as int;
+      String queryDetailsOrder =
+          'INSERT INTO $tableOrderDetails (idOrder , idProdcut , idMerchant , quantity , idAddress) VALUES (${idOrder} , ${item.idProdcut} , ${idMerchant} , ${item.quantity} , ${idAddress})';
+      int idOrderDetails = await dbConnection.transaction((transaction) async {
+        return await transaction.rawInsert(queryDetailsOrder);
+      });
+    }
+  }
 
-//   Future<List<String>> getString() async {
-//    var dbConnection = await db;
-//    List<Map> list = await dbConnection.rawQuery('SELECT * FROM $tableName');
-//    List<String> str = new List();
-//
-//    for (int i = 0; i < list.length; i++) {
-//      // obj
-//
-//      list[i]['id'];
-//    }
-//  }
-//
-//  void addNewRow(Object object) async {
-//    var dbConnection = await db;
-//    String query =
-//        'INSERT INTO $tableName(name , ...) VALUES (\'${object}\' , \'${object}\')';
-//    await dbConnection.transaction((transaction) async {
-//      return await transaction.rawInsert(query);
-//    });
-//  }
-//
-//
-//  void updateRow() async {
-//    var dbConnection = await db;
-//    String query = 'UPDATE $tableName SET id = \'${}\'  , ... , WHERE name = ${''}';
-//    await dbConnection.transaction((transaction) async {
-//      return await transaction.rawQuery(query);
-//    });
-//  }
-//
-//
-//  void deleteRow() async {
-//    var dbConnection = await db;
-//    String query = 'DELETE FROM  WHERE name = ${''}';
-//    await dbConnection.transaction((transaction) async {
-//      return await transaction.rawQuery(query);
-//    });
-//  }
+  Future<List<Order>> getOrdersForClient(int idClient) async {
+    var dbConnection = await db();
+    List<Order> orders = [];
+    List<Map> listOrderProduct = await dbConnection.rawQuery(
+        'SELECT * FROM $tableOrderProduct WHERE idClient = ? ', [idClient]);
+
+    for (int i = 0; i < listOrderProduct.length; i++) {
+      List<Map> listOrderDetails = await dbConnection.rawQuery(
+          'SELECT * FROM $tableOrderDetails WHERE idOrder = ? LIMIT 1 ',
+          [listOrderProduct[i]['id']]);
+      List<Map> listProduct = await dbConnection.rawQuery(
+          'SELECT * FROM $tableProduct WHERE id = ? ',
+          [listOrderDetails[0]['idProdcut']]);
+      final total = listOrderProduct[i]['totlaPrice'] as int;
+      Order order =
+      new Order(listOrderProduct[i]['id'], total.toDouble(), listProduct[0]['image']);
+      orders.add(order);
+    }
+    return orders;
+  }
 
 }

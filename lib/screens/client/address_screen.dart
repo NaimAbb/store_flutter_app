@@ -9,8 +9,8 @@ import 'package:store_flutter_app/widgets/button_common.dart';
 import 'package:store_flutter_app/providers/client.dart';
 import 'package:provider/provider.dart';
 
-
 List<Address> _allAddressNow = [];
+
 bool get isSelected {
   return _allAddressNow.any((element) => element.indexSelected != 0);
 }
@@ -21,32 +21,43 @@ class AddressScreen extends StatelessWidget {
 
   bool isFirst = true;
 
-  Widget buildItemAddress(String name , String city , String phoneNumber) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: <Widget>[
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(name),
-            Text(city),
-            Text(phoneNumber),
-          ],
-        ),
-        Radio(value: false, groupValue: true, onChanged: (val) {})
-      ],
-    );
-  }
+  Future<void> confirmBtn(Client client , BuildContext context)async{
+    if (_allAddressNow.isNotEmpty && !isSelected) {
+      Fluttertoast.cancel();
+      Fluttertoast.showToast(msg: 'must add address!');
+      return;
+    }
+    if (_allAddressNow.isEmpty) {
+      Fluttertoast.cancel();
+      Fluttertoast.showToast(msg: 'must add address!');
+      return;
+    }
+    bool result  = false;
+    _allAddressNow.forEach((element) {
+      if (element.indexSelected != 0){
+        result = true;
+        return;
+      }
+    });
+    if (!result){
+      Fluttertoast.cancel();
+      Fluttertoast.showToast(msg: 'must add address!');
+      return;
+    }
 
+    Address address = _allAddressNow.firstWhere((element) => element.indexSelected != 0);
+    await client.addOrder(int.parse(Constants.sharedPreferencesLocal.getUserId()), address.id);
+    Navigator.of(context).pushNamed(MyOrderScreen.routeName , arguments: 1);
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (isFirst) {
-      Provider.of<Client>(context, listen: false).getAllAddressForUser(
-          int.parse(Constants.sharedPreferencesLocal.getUserId()));
-
-    }
-    isFirst = false;
+    //   if (isFirst) {
+    final client = Provider.of<Client>(context, listen: false);
+    client.getAllAddressForUser(
+        int.parse(Constants.sharedPreferencesLocal.getUserId()));
+    //}
+    //   isFirst = false;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -76,25 +87,22 @@ class AddressScreen extends StatelessWidget {
                   return ListView(
                     children: getAllAddress.map((address) {
                       _allAddressNow.add(address);
-                      return Column(children: <Widget>[
-                      ChangeNotifierProvider.value(value: address, child:   _ItemAddress(address),),
-                        SizedBox(height: 35,)
-                      ],);
+                      return Column(
+                        children: <Widget>[
+                          ChangeNotifierProvider.value(
+                            value: address,
+                            child: _ItemAddress(address),
+                          ),
+                          SizedBox(
+                            height: 35,
+                          )
+                        ],
+                      );
                     }).toList(),
                   );
                 },
                 selector: (_, value) => value.getAllAddress),
           ),
-//          Expanded(
-//              child: ListView(
-//            children: <Widget>[
-//              buildItemAddress(),
-//              SizedBox(
-//                height: 35,
-//              ),
-//              buildItemAddress(),
-//            ],
-//          )),
           FlatButton(
             onPressed: () {
               Navigator.of(context).pushNamed(AddNewAddressScreen.routeName);
@@ -104,23 +112,9 @@ class AddressScreen extends StatelessWidget {
               style: TextStyle(color: Colors.lightBlue[300]),
             ),
           ),
-          ButtonCommon(
-            getTranslated(context, 'Confirm'),
-            onPress:(){
-              if (_allAddressNow.isNotEmpty && !isSelected){
-                Fluttertoast.cancel();
-                Fluttertoast.showToast(msg: 'must add address!');
-                return;
-              }
-              if (_allAddressNow.isEmpty){
-
-                Fluttertoast.cancel();
-                Fluttertoast.showToast(msg: 'must add address!');
-                return;
-              }
-              Navigator.of(context).pushNamed(MyOrderScreen.routeName);
-            }
-          ),
+          ButtonCommon(getTranslated(context, 'Confirm'), onPress: (){
+            confirmBtn(client , context);
+          }),
           SizedBox(
             height: 10,
           )
@@ -130,14 +124,14 @@ class AddressScreen extends StatelessWidget {
   }
 }
 
-
-class _ItemAddress extends StatelessWidget{
+class _ItemAddress extends StatelessWidget {
   final Address address;
+
   _ItemAddress(this.address);
 
   @override
   Widget build(BuildContext context) {
-    final addressProvider = Provider.of<Address>(context , listen: false);
+    final addressProvider = Provider.of<Address>(context, listen: false);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: <Widget>[
@@ -149,19 +143,22 @@ class _ItemAddress extends StatelessWidget{
             Text(address.phoneNumber),
           ],
         ),
-        Selector<Address , int>(builder: (_ , int indexSelected , __){
-          return  Radio(value: address.id, groupValue: indexSelected, onChanged: (val) {
-            _allAddressNow.forEach((element) {
-              if (element.id != address.id){
-                element.changeValueSelected(0);
-              }
-            });
-            addressProvider.changeValueSelected(val);
-          });
-        }, selector: (_ , value) => value.indexSelected)
-
+        Selector<Address, int>(
+            builder: (_, int indexSelected, __) {
+              return Radio(
+                  value: address.id,
+                  groupValue: indexSelected,
+                  onChanged: (val) {
+                    _allAddressNow.forEach((element) {
+                      if (element.id != address.id) {
+                        element.changeValueSelected(0);
+                      }
+                    });
+                    addressProvider.changeValueSelected(val);
+                  });
+            },
+            selector: (_, value) => value.indexSelected)
       ],
     );
   }
-
 }

@@ -17,7 +17,6 @@ class AddNewAddressScreen extends StatefulWidget {
 }
 
 class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
-
   Client _client;
 
   bool _isFirst = true;
@@ -63,20 +62,24 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
 
       await _client.addAddress(address);
       Fluttertoast.cancel();
-      Fluttertoast.showToast(msg: getTranslated(context, 'AddressAdded') , toastLength: Toast.LENGTH_SHORT);
+      Fluttertoast.showToast(
+          msg: getTranslated(context, 'AddressAdded'),
+          toastLength: Toast.LENGTH_SHORT);
       Navigator.of(context).pop();
     } catch (error) {
       print(error.toString());
     }
   }
-@override
+
+  @override
   void didChangeDependencies() {
-    if (_isFirst){
-      _client = Provider.of<Client>(context , listen: false);
+    if (_isFirst) {
+      _client = Provider.of<Client>(context, listen: false);
     }
     _isFirst = false;
     super.didChangeDependencies();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

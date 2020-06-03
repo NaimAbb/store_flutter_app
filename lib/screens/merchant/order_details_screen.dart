@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:store_flutter_app/localization/localization_constants.dart';
+import 'package:store_flutter_app/models/order_merchant.dart';
 import 'package:store_flutter_app/widgets/button_common.dart';
 
 class OrderDetailsScreen extends StatelessWidget {
@@ -7,6 +10,7 @@ class OrderDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final data = ModalRoute.of(context).settings.arguments as OrderMerchant;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -44,7 +48,7 @@ class OrderDetailsScreen extends StatelessWidget {
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
-                  'Naim Abbud',
+                  data.clientName,
                   style: const TextStyle(fontSize: 16),
                 )),
             SizedBox(
@@ -62,7 +66,7 @@ class OrderDetailsScreen extends StatelessWidget {
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
-                  'Palestine - Gaza',
+                  data.address,
                   style: const TextStyle(fontSize: 16),
                 )),
             SizedBox(
@@ -75,14 +79,43 @@ class OrderDetailsScreen extends StatelessWidget {
                   style: const TextStyle(color: Colors.grey, fontSize: 15),
                 )),
             SizedBox(
-              height: 5,
+              height: 20,
             ),
-            Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text(
-                  'apple',
-                  style: const TextStyle(fontSize: 16),
-                )),
+            Column(
+              children: data.products.map((product) {
+                return Column(children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      children: <Widget>[
+                        Image.memory(
+                          base64Decode(product.image),
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.cover,
+                        ),
+                        SizedBox(
+                          width: 5,
+                        ),
+                        Text(
+                          product.name,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                        Spacer(),
+                        Text(
+                          '\$' + product.price.toString(),
+                          style: TextStyle(
+                              color: Theme.of(context).accentColor,
+                              fontWeight: FontWeight.bold , fontSize: 15),
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 10,)
+                ],);
+              }).toList(),
+            ),
           ],
         ),
       ),

@@ -11,6 +11,7 @@ class Client extends ChangeNotifier {
   List<Category> _categories = [];
   List<Product> _productFeatured = [];
   List<Product> _productByCategory = [];
+  List<Product> _searchProduct = [];
   List<Address> _allAddress = [];
   List<CartItem> _carts = [];
   List<Order> _orders = [];
@@ -22,6 +23,8 @@ class Client extends ChangeNotifier {
   List<Product> get getFeatured => [..._productFeatured];
 
   List<Product> get productCategory => [..._productByCategory];
+
+  List<Product> get productSearch => [... _searchProduct];
 
   List<Address> get getAllAddress => [..._allAddress];
 
@@ -65,7 +68,7 @@ class Client extends ChangeNotifier {
 
   Future<void> addToCart(CartItem cartItem) async {
     try {
-      _db.addToCard(cartItem);
+     await _db.addToCard(cartItem);
     } catch (error) {
       throw error;
     }
@@ -146,5 +149,22 @@ class Client extends ChangeNotifier {
     } catch (error) {
       throw error;
     }
+  }
+
+  Future<void> searchAboutProduct (String wordSearch)async{
+    try{
+      final products = await _db.searchAboutProduct(wordSearch);
+      _searchProduct = products;
+      notifyListeners();
+    }catch(error){
+      throw error;
+    }
+  }
+
+
+  void allProduct(){
+    _productByCategory.clear();
+    _searchProduct.clear();
+    notifyListeners();
   }
 }

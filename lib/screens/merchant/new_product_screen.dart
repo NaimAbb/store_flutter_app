@@ -39,6 +39,7 @@ class _NewProductScreenState extends State<NewProductScreen> {
     _nameProductController.dispose();
     _priceProductController.dispose();
     _duscriptionProductController.dispose();
+    _merchant.changeValueChooseImageToFalse();
   }
 
   @override
@@ -128,6 +129,8 @@ class _NewProductScreenState extends State<NewProductScreen> {
 
     //  DBHelper().getProducts();
   }
+
+
 
   @override
   Widget build(BuildContext context) {

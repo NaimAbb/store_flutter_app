@@ -1,4 +1,6 @@
-class CartItem {
+import 'package:flutter/material.dart';
+
+class CartItem extends ChangeNotifier {
   String _id;
   int _idProdcut;
   String _nameProduct;
@@ -7,6 +9,17 @@ class CartItem {
   int _quantity;
 
   CartItem(this._nameProduct, this._image, this._totalPrice, this._quantity , this._idProdcut);
+
+
+  void incrementQuantity(){
+    _quantity =  _quantity +1;
+    notifyListeners();
+  }
+
+  void reduceQuantity(){
+    _quantity =  _quantity - 1;
+    notifyListeners();
+  }
 
   String get id => _id;
 

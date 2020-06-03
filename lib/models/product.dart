@@ -6,8 +6,16 @@ class Product {
   String _description;
   String _image;
 
-  Product(
-       this._name, this._price, this._idCategory, this._description);
+  Product(this._name, this._price, this._idCategory, this._description);
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    Product product = new Product(
+        json['name'], json['price'], json['idCategory'], json['duscription']);
+    product.id = json['id'].toString();
+    product.image = json['image'];
+
+    return product;
+  }
 
   String get name => _name;
 
@@ -18,7 +26,6 @@ class Product {
   int get idCategory => _idCategory;
 
   String get id => _id;
-
 
   String get image => _image;
 
@@ -45,6 +52,4 @@ class Product {
   set image(String value) {
     _image = value;
   }
-
-
 }

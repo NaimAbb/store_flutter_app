@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:store_flutter_app/localization/localization_constants.dart';
+import 'package:store_flutter_app/models/order_merchant.dart';
 import 'package:store_flutter_app/screens/merchant/order_details_screen.dart';
+import 'package:store_flutter_app/utils/constants.dart';
 import 'package:store_flutter_app/widgets/button_common.dart';
+import 'package:provider/provider.dart';
+import 'package:store_flutter_app/providers/merchant.dart';
 
 class OrdersScreen extends StatelessWidget {
   static const String routeName = '/orders-screen';
 
-  Widget itemOrder(BuildContext context) {
+  Widget itemOrder(BuildContext context , OrderMerchant orderMerchant) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
       elevation: 3,
@@ -15,18 +19,21 @@ class OrdersScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Text('Womman t- shirt'),
-            Text(
-              'Lotto.LTD',
-              style: TextStyle(color: Colors.grey),
-            ),
-            Text('43.00\$'),
-            Text('Client Name'),
+            Text(orderMerchant.idOrder),
+            Text('${orderMerchant.totalPrice}\$'),
+            Text(orderMerchant.clientName),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[Text('City'), ButtonCommon('Details' , onPress: (){
-                Navigator.of(context).pushNamed(OrderDetailsScreen.routeName);
-              },)],
+              children: <Widget>[
+                Text(orderMerchant.address),
+                ButtonCommon(
+                  'Details',
+                  onPress: () {
+                    Navigator.of(context)
+                        .pushNamed(OrderDetailsScreen.routeName , arguments: orderMerchant);
+                  },
+                )
+              ],
             )
           ],
         ),
@@ -36,6 +43,7 @@ class OrdersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Provider.of<Merchant>(context , listen: false).getOrdersForMerchant(int.parse(Constants.sharedPreferencesLocal.getUserId()));
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -61,11 +69,11 @@ class OrdersScreen extends StatelessWidget {
             SizedBox(
               height: 20,
             ),
-            itemOrder(context),
-            itemOrder(context),
-            itemOrder(context),
-            itemOrder(context),
-            itemOrder(context),
+            Selector<Merchant , List<OrderMerchant>>(builder: (_ , List<OrderMerchant>getOrders , __){
+              return Column(children: getOrders.map((order){
+                return itemOrder(context , order);
+              }).toList());
+            }, selector: (_ , value) => value.getOrders),
           ],
         ),
       ),

@@ -147,7 +147,7 @@ class _CartScreenState extends State<CartScreen> {
                       Column(
                         children: _client.carts.map((item) {
                           total += item.totalPrice * item.quantity;
-                          return _CartItem(item, ValueKey(item.id));
+                          return ChangeNotifierProvider.value(value: item,child: _CartItem(item, ValueKey(item.id)));
                         }).toList(),
                       ),
                     ],
@@ -228,52 +228,48 @@ class _CartItemState extends State<_CartItem> {
                 SizedBox(
                   height: 20,
                 ),
-                StatefulBuilder(builder: (_, StateSetter setState) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    height: 30,
-                    width: 90,
-                    color: Colors.grey[100],
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        InkWell(
-                          onTap: () {
-                            if (_amount > 1) {
-                              setState(() {
-                                _amount = _amount - 1;
-                                _client.reducingTheQuantity(
-                                    widget.cartItem.idProdcut);
-                                _client.getCount();
-                              });
-                            }
-                          },
-                          child: Text(
-                            '-',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ),
-                        Text(
-                          _amount.toString(),
-                          style: TextStyle(fontSize: 17),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            setState(() async {
-                              _amount = _amount + 1;
-                              await _client.addToCart(widget.cartItem);
-                              await _client.getCount();
-                            });
-                          },
-                          child: Text(
-                            '+',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        )
-                      ],
-                    ),
-                  );
-                })
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        height: 30,
+        width: 90,
+        color: Colors.grey[100],
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            InkWell(
+              onTap: () async{
+                if (_amount > 1) {
+                  _amount = _amount - 1;
+                  await _client.reducingTheQuantity(
+                      widget.cartItem.idProdcut);
+                  await _client.getCount();
+                  widget.cartItem.reduceQuantity();
+                }
+              },
+              child: Text(
+                '-',
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
+            Text(
+              widget.cartItem.quantity.toString(),
+              style: TextStyle(fontSize: 17),
+            ),
+            InkWell(
+              onTap: () async{
+                _amount = _amount + 1;
+                await _client.addToCart(widget.cartItem);
+                await _client.getCount();
+                widget.cartItem.incrementQuantity();
+              },
+              child: Text(
+                '+',
+                style: TextStyle(fontSize: 20),
+              ),
+            )
+          ],
+        ),
+      )
               ],
             ),
             Spacer(),

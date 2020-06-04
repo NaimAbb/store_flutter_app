@@ -4,6 +4,9 @@ import 'package:store_flutter_app/screens/client/my_order_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:store_flutter_app/providers/auth.dart';
 import 'package:store_flutter_app/screens/signin_screen.dart';
+import 'package:store_flutter_app/utils/constants.dart';
+
+import '../main.dart';
 
 class DrawerLayout extends StatelessWidget {
   @override
@@ -40,12 +43,51 @@ class DrawerLayout extends StatelessWidget {
             ),
             ListTile(
               onTap: () async {
+                showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              FlatButton(
+                                child: Text('عربي'),
+                                onPressed: () async {
+                                  await Constants.sharedPreferencesLocal
+                                      .setLang('ar', 'AE');
+                                  MyApp.setLocale(context, Locale('ar', 'AE'));
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              FlatButton(
+                                child: Text('English'),
+                                onPressed: () async {
+                                  await Constants.sharedPreferencesLocal
+                                      .setLang('en', 'US');
+
+                                  MyApp.setLocale(context, Locale('en', 'US'));
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          ),
+                        ));
+              },
+              title: Text(
+                getTranslated(context, 'Language'),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              trailing: Icon(Icons.language),
+            ),
+            ListTile(
+              onTap: () async {
                 await Provider.of<Auth>(context, listen: false).signOut();
                 Navigator.of(context).pushReplacement(
                     MaterialPageRoute(builder: (_) => SignInScreen()));
               },
               title: Text(
-                'SignOut',
+                getTranslated(context, 'SignOut'),
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               trailing: Icon(Icons.exit_to_app),

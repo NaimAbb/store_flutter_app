@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:store_flutter_app/localization/localization_constants.dart';
-import 'package:store_flutter_app/models/cart_item.dart';
+import 'package:store_flutter_app/models/modelsProvider/cart_item.dart';
 import 'package:store_flutter_app/screens/client/address_screen.dart';
 import 'package:store_flutter_app/widgets/button_common.dart';
 import 'package:provider/provider.dart';
@@ -158,7 +158,7 @@ class _CartScreenState extends State<CartScreen> {
           height: 90,
           child: Column(
             children: <Widget>[
-              Text('total price : \$$total'),
+              Text('${getTranslated(context, 'TotalPrice')} : \$$total'),
               SizedBox(
                 height: 10,
               ),

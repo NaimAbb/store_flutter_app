@@ -24,12 +24,12 @@ class AddressScreen extends StatelessWidget {
   Future<void> confirmBtn(Client client , BuildContext context)async{
     if (_allAddressNow.isNotEmpty && !isSelected) {
       Fluttertoast.cancel();
-      Fluttertoast.showToast(msg: 'must add address!');
+      Fluttertoast.showToast(msg: getTranslated(context, 'MustAddAddress'));
       return;
     }
     if (_allAddressNow.isEmpty) {
       Fluttertoast.cancel();
-      Fluttertoast.showToast(msg: 'must add address!');
+      Fluttertoast.showToast(msg: getTranslated(context, 'MustAddAddress'));
       return;
     }
     bool result  = false;
@@ -41,7 +41,7 @@ class AddressScreen extends StatelessWidget {
     });
     if (!result){
       Fluttertoast.cancel();
-      Fluttertoast.showToast(msg: 'must add address!');
+      Fluttertoast.showToast(msg: getTranslated(context, 'MustAddAddress'));
       return;
     }
 

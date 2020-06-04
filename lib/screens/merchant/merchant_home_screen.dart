@@ -3,9 +3,11 @@ import 'package:store_flutter_app/localization/localization_constants.dart';
 import 'package:store_flutter_app/screens/merchant/new_product_screen.dart';
 import 'package:store_flutter_app/screens/merchant/orders_screen.dart';
 import 'package:store_flutter_app/screens/signin_screen.dart';
+import 'package:store_flutter_app/utils/constants.dart';
 import 'package:store_flutter_app/widgets/button_common.dart';
 import 'package:provider/provider.dart';
 import 'package:store_flutter_app/providers/auth.dart';
+import '../../main.dart';
 
 class MerchantHomeScreen extends StatelessWidget {
   static const String routeName = '/merchant-home-screen';
@@ -37,14 +39,53 @@ class MerchantHomeScreen extends StatelessWidget {
             ),
             FlatButton(
                 onPressed: () async {
+                  showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                FlatButton(
+                                  child: Text('عربي'),
+                                  onPressed: () async {
+                                    await Constants.sharedPreferencesLocal
+                                        .setLang('ar', 'AE');
+                                    MyApp.setLocale(
+                                        context, Locale('ar', 'AE'));
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                FlatButton(
+                                  child: Text('English'),
+                                  onPressed: () async {
+                                    await Constants.sharedPreferencesLocal
+                                        .setLang('en', 'US');
+
+                                    MyApp.setLocale(
+                                        context, Locale('en', 'US'));
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            ),
+                          ));
+                },
+                child: Text(
+                  getTranslated(context, 'Language'),
+                  style: TextStyle(color: Colors.red),
+                )),  SizedBox(
+              height: 10,
+            ),
+            FlatButton(
+                onPressed: () async {
                   await Provider.of<Auth>(context, listen: false).signOut();
                   Navigator.of(context).pushReplacement(
                       MaterialPageRoute(builder: (_) => SignInScreen()));
                 },
                 child: Text(
-                  'Sign Out',
+                  getTranslated(context, 'SignOut'),
                   style: TextStyle(color: Colors.red),
-                ))
+                )),
           ],
         ),
       ),

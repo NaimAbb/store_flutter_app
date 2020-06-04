@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:store_flutter_app/localization/localization_constants.dart';
-import 'package:store_flutter_app/models/cart_item.dart';
+import 'package:store_flutter_app/models/modelsProvider/cart_item.dart';
 import 'package:store_flutter_app/models/product.dart';
 import 'package:provider/provider.dart';
 import 'package:store_flutter_app/providers/client.dart';
@@ -89,7 +89,7 @@ class DetailsProductScreen extends StatelessWidget {
                 await Provider.of<Client>(context, listen: false)
                     .getCount();
                 _scaffoldState.currentState.hideCurrentSnackBar();
-                _scaffoldState.currentState.showSnackBar(SnackBar(content: Text('add success to cart') , ));
+                _scaffoldState.currentState.showSnackBar(SnackBar(content: Text(getTranslated(context, 'AddedSuccessToCart')) , ));
               },
               padding: const EdgeInsets.all(0.0),
               child: Ink(

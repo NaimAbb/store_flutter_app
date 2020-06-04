@@ -1,11 +1,12 @@
 
-class Order{
+class Order {
   int _id;
   double _totalPrice;
   String _image;
 
-
   Order(this._id, this._totalPrice, this._image);
+
+
 
   int get id => _id;
 
@@ -24,6 +25,4 @@ class Order{
   set id(int value) {
     _id = value;
   }
-
-
 }

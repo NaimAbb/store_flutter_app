@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:store_flutter_app/utils/constants.dart';
 
@@ -50,5 +51,21 @@ class SharedPreferencesLocal {
 
   Future<void> clear() async {
     await _sharedPreferences.clear();
+  }
+
+  Future<void> setLang(String languageCode, String countryCode) async {
+    print(languageCode);
+    await _sharedPreferences.setString('languageCode', languageCode);
+    await _sharedPreferences.setString('countryCode', countryCode);
+  }
+
+  Future<Locale> getLang() async {
+    String languageCode =  _sharedPreferences.getString('languageCode') ?? null;
+    String countryCode =  _sharedPreferences.getString('countryCode') ?? null;
+    if (languageCode == null || countryCode == null){
+      return null;
+    }
+    Locale locale = new Locale(languageCode, countryCode);
+    return locale;
   }
 }

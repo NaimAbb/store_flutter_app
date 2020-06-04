@@ -5,7 +5,7 @@ import 'dart:async';
 import 'dart:io' as io;
 import 'package:path/path.dart';
 import 'package:store_flutter_app/models/modelsProvider/address.dart';
-import 'package:store_flutter_app/models/cart_item.dart';
+import 'package:store_flutter_app/models/modelsProvider/cart_item.dart';
 import 'package:store_flutter_app/models/category.dart';
 import 'package:store_flutter_app/models/order.dart';
 import 'package:store_flutter_app/models/order_merchant.dart';
@@ -103,7 +103,7 @@ class DBHelper {
     CREATE TABLE $tableUser (
         $columnId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL  ,
         $columnName TEXT NOT NULL , 
-        $columnEmailUser TEXT NOT NULL , 
+        $columnEmailUser TEXT UNIQUE NOT NULL , 
         $columnPasswordUser TEXT NOT NULL ,  
         $columnTypeUser TEXT NOT NULL 
         );
@@ -200,32 +200,33 @@ class DBHelper {
       type = 'Merchant';
     }
     String query =
-        'INSERT INTO $tableUser(name , email , password , type ) VALUES (\'${user.name}\' , \'${user.email}\' , \'${password}\' , \'${type}\')';
+        'INSERT INTO $tableUser($columnName , $columnEmailUser , $columnPasswordUser , $columnTypeUser )'
+        ' VALUES (\'${user.name}\' , \'${user.email}\' , \'${password}\' , \'${type}\')';
     int result = await dbConnection.transaction((transaction) async {
       return await transaction.rawInsert(query);
     });
     return result;
   }
 
-  Future<List<User>> getUsers() async {
-    var dbConnection = await db();
-    List<Map> list = await dbConnection.rawQuery('SELECT * FROM $tableUser');
-    List<User> users = new List();
-
-    for (int i = 0; i < list.length; i++) {
-      String type = list[i]['type'] as String;
-      User user = new User(list[i]['name'], list[i]['email'],
-          type == 'Client' ? Type.Client : Type.Merchant);
-      user.id = list[i]['id'].toString();
-      users.add(user);
-    }
-    return users;
-  }
+//  Future<List<User>> getUsers() async {
+//    var dbConnection = await db();
+//    List<Map> list = await dbConnection.rawQuery('SELECT * FROM $tableUser');
+//    List<User> users = new List();
+//
+//    for (int i = 0; i < list.length; i++) {
+//      String type = list[i]['type'] as String;
+//      User user = new User(list[i]['name'], list[i]['email'],
+//          type == 'Client' ? Type.Client : Type.Merchant);
+//      user.id = list[i]['id'].toString();
+//      users.add(user);
+//    }
+//    return users;
+//  }
 
   Future<bool> searchAboutEmail(String email) async {
     var dbConnection = await db();
-    List<Map> list = await dbConnection
-        .rawQuery('SELECT * FROM $tableUser WHERE email = ?', [email]);
+    List<Map> list = await dbConnection.rawQuery(
+        'SELECT * FROM $tableUser WHERE $columnEmailUser = ?', [email]);
     if (list != null && list.isNotEmpty) {
       return true;
     } else {
@@ -236,7 +237,7 @@ class DBHelper {
   Future<User> emailAndPasswordIsExist(String email, String password) async {
     var dbConnection = await db();
     List<Map> list = await dbConnection.rawQuery(
-        'SELECT * FROM $tableUser WHERE email = ? AND password = ?',
+        'SELECT * FROM $tableUser WHERE $columnEmailUser = ? AND $columnPasswordUser = ?',
         [email, password]);
     if (list != null && list.isNotEmpty) {
       String type = list[0]['type'] as String;
@@ -275,9 +276,9 @@ class DBHelper {
 
     if (list != null && list.isNotEmpty) return;
     for (Map<String, String> item in categories) {
-      print(item);
       String query =
-          'INSERT INTO $tableCategory (name , imageUrl) VALUES (\'${item['title']}\' , \'${item['imageUrl']}\')';
+          'INSERT INTO $tableCategory ($columnName , $columnImageUrlCategory) '
+          'VALUES (\'${item['title']}\' , \'${item['imageUrl']}\')';
       int result = await dbConnection.transaction((transaction) async {
         return await transaction.rawInsert(query);
       });
@@ -301,14 +302,15 @@ class DBHelper {
   Future<void> addProduct(Product product, int idCurrentUser) async {
     var dbConnection = await db();
     String query =
-        'INSERT INTO $tableProduct (name , duscription , price , image ,idCategory ) VALUES (\'${product.name}\', \'${product.description}\',${product.price} , \'${product.image}\' , ${product.idCategory})';
+        'INSERT INTO $tableProduct ($columnName , $columnDuscriptionProduct , $columnPriceProduct , $columnImage ,$columnIdCategoryProduct ) '
+        'VALUES (\'${product.name}\', \'${product.description}\',${product.price} , \'${product.image}\' , ${product.idCategory})';
 
     int result = await dbConnection.transaction((transaction) async {
       return await transaction.rawInsert(query);
     });
 
     String queryTableProductUser =
-        'INSERT INTO $tableProductUser (idUser ,idProduct ) VALUES (${idCurrentUser} , ${result})';
+        'INSERT INTO $tableProductUser ($columnIdUserF ,$columnIdProductF ) VALUES (${idCurrentUser} , ${result})';
     int resultTableProductUser =
         await dbConnection.transaction((transaction) async {
       return await transaction.rawInsert(queryTableProductUser);
@@ -321,10 +323,8 @@ class DBHelper {
     List<Product> products = new List();
 
     for (int i = 0; i < list.length; i++) {
-      Product product = new Product(list[i]['name'], list[i]['price'],
-          list[i]['idCategory'], list[i]['duscription']);
-      product.image = list[i]['image'];
-      product.id = list[i]['id'].toString();
+      Product product = Product.fromJson(list[i]);
+
       print(product.idCategory);
       products.add(product);
     }
@@ -338,10 +338,9 @@ class DBHelper {
     List<Product> products = new List();
 
     for (int i = 0; i < list.length; i++) {
-      Product product = new Product(list[i]['name'], list[i]['price'],
-          list[i]['idCategory'], list[i]['duscription']);
-      product.image = list[i]['image'];
-      product.id = list[i]['id'].toString();
+      Product product = Product.fromJson(list[i]);
+
+
       print(product.idCategory);
       products.add(product);
     }
@@ -351,13 +350,12 @@ class DBHelper {
   Future<List<Product>> productsByCategory(int idCategory) async {
     var dbConnection = await db();
     List<Map> list = await dbConnection.rawQuery(
-        'SELECT * FROM $tableProduct WHERE idCategory = ? ', [idCategory]);
+        'SELECT * FROM $tableProduct WHERE $columnIdCategoryProduct = ? ',
+        [idCategory]);
     List<Product> products = new List();
     for (int i = 0; i < list.length; i++) {
-      Product product = new Product(list[i]['name'], list[i]['price'],
-          list[i]['idCategory'], list[i]['duscription']);
-      product.image = list[i]['image'];
-      product.id = list[i]['id'].toString();
+      Product product = Product.fromJson(list[i]);
+
       print(product.idCategory);
       products.add(product);
     }
@@ -367,18 +365,20 @@ class DBHelper {
   Future<void> addToCard(CartItem cartItem) async {
     var dbConnection = await db();
     List<Map> list = await dbConnection.rawQuery(
-        'SELECT * FROM $tableCart WHERE idProdcut = ? ', [cartItem.idProdcut]);
+        'SELECT * FROM $tableCart WHERE $columnIdProductF = ? ',
+        [cartItem.idProdcut]);
     if (list != null && list.isNotEmpty) {
-      var quantity = list[0]['quantity'] as int;
+      var quantity = list[0][columnQuantity] as int;
       quantity = quantity + 1;
       String query =
-          'UPDATE $tableCart SET quantity = ${quantity} WHERE idProdcut = ${cartItem.idProdcut}';
+          'UPDATE $tableCart SET $columnQuantity = ${quantity} WHERE $columnIdProductF = ${cartItem.idProdcut}';
       await dbConnection.transaction((transaction) async {
         return await transaction.rawQuery(query);
       });
     } else {
       String query =
-          'INSERT INTO $tableCart (nameProduct , image ,totalPrice ,quantity , idProdcut) VALUES (\'${cartItem.nameProduct}\', \'${cartItem.image}\',${cartItem.totalPrice} , \'${cartItem.quantity}\',${cartItem.idProdcut})';
+          'INSERT INTO $tableCart ($columnNameProductCart , $columnImage ,$columnTotalPriceCart ,$columnQuantity , $columnIdProductF) '
+          'VALUES (\'${cartItem.nameProduct}\', \'${cartItem.image}\',${cartItem.totalPrice} , \'${cartItem.quantity}\',${cartItem.idProdcut})';
 
       int result = await dbConnection.transaction((transaction) async {
         return await transaction.rawInsert(query);
@@ -394,9 +394,8 @@ class DBHelper {
     for (int i = 0; i < list.length; i++) {
       print(list[i].toString());
       print(list[i]['quantity']);
-      CartItem cartItem = new CartItem(list[i]['nameProduct'], list[i]['image'],
-          list[i]['totalPrice'], list[i]['quantity'], list[i]['idProdcut']);
-      cartItem.id = list[i]['id'].toString();
+
+      CartItem cartItem = CartItem.fromJson(list[i]);
       cartItems.add(cartItem);
     }
     return cartItems;
@@ -404,13 +403,13 @@ class DBHelper {
 
   Future<void> reducingTheQuantity(int idProduct) async {
     var dbConnection = await db();
-    List<Map> list = await dbConnection
-        .rawQuery('SELECT * FROM $tableCart WHERE idProdcut = ? ', [idProduct]);
+    List<Map> list = await dbConnection.rawQuery(
+        'SELECT * FROM $tableCart WHERE $columnIdProductF = ? ', [idProduct]);
     if (list != null && list.isNotEmpty) {
-      var quantity = list[0]['quantity'] as int;
+      var quantity = list[0][columnQuantity] as int;
       quantity = quantity - 1;
       String query =
-          'UPDATE $tableCart SET quantity = ${quantity} WHERE idProdcut = ${idProduct}';
+          'UPDATE $tableCart SET $columnQuantity = ${quantity} WHERE $columnIdProductF = ${idProduct}';
       await dbConnection.transaction((transaction) async {
         return await transaction.rawQuery(query);
       });
@@ -419,7 +418,8 @@ class DBHelper {
 
   Future<void> deleteItemFromCart(int idProduct) async {
     var dbConnection = await db();
-    String query = 'DELETE FROM $tableCart  WHERE idProdcut = ${idProduct}';
+    String query =
+        'DELETE FROM $tableCart  WHERE $columnIdProductF = ${idProduct}';
     await dbConnection.transaction((transaction) async {
       return await transaction.rawQuery(query);
     });
@@ -428,7 +428,8 @@ class DBHelper {
   Future<int> addAddress(Address address) async {
     var dbConnection = await db();
     String query =
-        'INSERT INTO $tableAddress (idUser , name ,addressLane ,city , postalCode , phoneNumber) VALUES (${address.idUser}, \'${address.name}\',\'${address.addressLane}\', \'${address.city}\',\'${address.postalCode}\' , \'${address.phoneNumber}\')';
+        'INSERT INTO $tableAddress ($columnIdUserF , $columnName ,$columnAddressLaneAddress ,$columnCityAddress , $columnPostalCodeAddress , $columnPhoneNumberAddress) '
+        'VALUES (${address.idUser}, \'${address.name}\',\'${address.addressLane}\', \'${address.city}\',\'${address.postalCode}\' , \'${address.phoneNumber}\')';
 
     int id = await dbConnection.transaction((transaction) async {
       return await transaction.rawInsert(query);
@@ -439,8 +440,8 @@ class DBHelper {
   Future<List<Address>> getAddressForUser(int idUser) async {
     List<Address> addressAll = [];
     var dbConnection = await db();
-    List<Map> list = await dbConnection
-        .rawQuery('SELECT * FROM $tableAddress WHERE idUser = ? ', [idUser]);
+    List<Map> list = await dbConnection.rawQuery(
+        'SELECT * FROM $tableAddress WHERE $columnIdUserF = ? ', [idUser]);
     for (var address in list) {
       Address addressUser = Address.formJson(address);
       addressAll.add(addressUser);
@@ -457,18 +458,20 @@ class DBHelper {
       totalPrice += totalItem;
     });
     String query =
-        'INSERT INTO $tableOrderProduct (totlaPrice , description , idClient , idAddress) VALUES (${totalPrice} , \'${''}\' , ${idClient} , ${idAddress})';
+        'INSERT INTO $tableOrderProduct ($columnTotlaPriceOrderProduct , $columnDescriptionOrderProduct , $columnIdClientOrderProduct , $columnIdAddressF) '
+        'VALUES (${totalPrice} , \'${''}\' , ${idClient} , ${idAddress})';
     int idOrder = await dbConnection.transaction((transaction) async {
       return await transaction.rawInsert(query);
     });
     for (var item in items) {
       int idProduct = item.idProdcut;
       List<Map> list = await dbConnection.rawQuery(
-          'SELECT idUser FROM $tableProductUser WHERE idProduct = ? ',
+          'SELECT $columnIdUserF FROM $tableProductUser WHERE $columnIdProductF = ? ',
           [idProduct]);
-      final idMerchant = list[0]['idUser'] as int;
+      final idMerchant = list[0][columnIdUserF] as int;
       String queryDetailsOrder =
-          'INSERT INTO $tableOrderDetails (idOrder , idProdcut , idMerchant , quantity , idAddress) VALUES (${idOrder} , ${item.idProdcut} , ${idMerchant} , ${item.quantity} , ${idAddress})';
+          'INSERT INTO $tableOrderDetails ($columnIdOrderOrderDetails , $columnIdProductF , $columnIdMerchantOrderDetails , $columnQuantity , $columnIdAddressF) '
+          'VALUES (${idOrder} , ${item.idProdcut} , ${idMerchant} , ${item.quantity} , ${idAddress})';
       int idOrderDetails = await dbConnection.transaction((transaction) async {
         return await transaction.rawInsert(queryDetailsOrder);
       });
@@ -479,18 +482,19 @@ class DBHelper {
     var dbConnection = await db();
     List<Order> orders = [];
     List<Map> listOrderProduct = await dbConnection.rawQuery(
-        'SELECT * FROM $tableOrderProduct WHERE idClient = ? ', [idClient]);
+        'SELECT * FROM $tableOrderProduct WHERE $columnIdClientOrderProduct = ? ',
+        [idClient]);
 
     for (int i = 0; i < listOrderProduct.length; i++) {
       List<Map> listOrderDetails = await dbConnection.rawQuery(
-          'SELECT * FROM $tableOrderDetails WHERE idOrder = ? LIMIT 1 ',
-          [listOrderProduct[i]['id']]);
+          'SELECT * FROM $tableOrderDetails WHERE $columnIdOrderOrderDetails = ? LIMIT 1 ',
+          [listOrderProduct[i][columnId]]);
       List<Map> listProduct = await dbConnection.rawQuery(
-          'SELECT * FROM $tableProduct WHERE id = ? ',
-          [listOrderDetails[0]['idProdcut']]);
-      final total = listOrderProduct[i]['totlaPrice'] as int;
-      Order order = new Order(
-          listOrderProduct[i]['id'], total.toDouble(), listProduct[0]['image']);
+          'SELECT * FROM $tableProduct WHERE $columnId = ? ',
+          [listOrderDetails[0][columnIdProductF]]);
+      final total = listOrderProduct[i][columnTotlaPriceOrderProduct] as int;
+      Order order = new Order(listOrderProduct[i][columnId], total.toDouble(),
+          listProduct[0][columnImage]);
       orders.add(order);
     }
     return orders;
@@ -500,52 +504,43 @@ class DBHelper {
     var dbConnection = await db();
     Map<int, OrderMerchant> data = {};
     List<Map> list = await dbConnection.rawQuery(
-        'SELECT * FROM $tableOrderDetails WHERE idMerchant = ?', [idMerchant]);
+        'SELECT * FROM $tableOrderDetails WHERE $columnIdMerchantOrderDetails = ?',
+        [idMerchant]);
     for (int i = 0; i < list.length; i++) {
-      final idOrder = list[i]['idOrder'] as int;
+      final idOrder = list[i][columnIdOrderOrderDetails] as int;
       if (data.containsKey(idOrder)) {
         List<Map> product = await dbConnection.rawQuery(
-            'SELECT * FROM $tableProduct WHERE id = ?', [list[i]['idProdcut']]);
+            'SELECT * FROM $tableProduct WHERE $columnId = ?',
+            [list[i][columnIdProductF]]);
 
-        Product productData = new Product(
-            product[0]['name'],
-            product[0]['price'],
-            product[0]['idCategory'],
-            product[0]['duscription']);
-        productData.id = list[i]['idProdcut'].toString();
-        productData.image = product[0]['image'];
+        Product productData = Product.fromJson(product[0]);
         final dataOrder = data[idOrder];
         dataOrder.products.add(productData);
         data[idOrder] = dataOrder;
       } else {
         List<Map> product = await dbConnection.rawQuery(
-            'SELECT * FROM $tableProduct WHERE id = ?', [list[i]['idProdcut']]);
-
-        Product productData = new Product(
-            product[0]['name'],
-            product[0]['price'],
-            product[0]['idCategory'],
-            product[0]['duscription']);
-        productData.id = list[i]['idProdcut'].toString();
-        productData.image = product[0]['image'];
+            'SELECT * FROM $tableProduct WHERE $columnId = ?',
+            [list[i][columnIdProductF]]);
+        Product productData = Product.fromJson(product[0]);
 
         List<Product> allProducts = [productData];
         List<Map> order = await dbConnection.rawQuery(
-            'SELECT * FROM $tableOrderProduct WHERE id = ?',
-            [list[i]['idOrder']]);
+            'SELECT * FROM $tableOrderProduct WHERE $columnId = ?',
+            [list[i][columnIdOrderOrderDetails]]);
 
         List<Map> client = await dbConnection.rawQuery(
-            'SELECT * FROM $tableUser WHERE id = ?', [order[0]['idClient']]);
+            'SELECT * FROM $tableUser WHERE $columnId = ?',
+            [order[0][columnIdClientOrderProduct]]);
 
         List<Map> address = await dbConnection.rawQuery(
-            'SELECT * FROM $tableAddress WHERE id = ?',
-            [order[0]['idAddress']]);
-        final total = order[0]['totlaPrice'] as int;
+            'SELECT * FROM $tableAddress WHERE $columnId = ?',
+            [order[0][columnIdAddressF]]);
+        final total = order[0][columnTotlaPriceOrderProduct] as int;
 
         data[idOrder] = new OrderMerchant(
-            list[i]['idOrder'].toString(),
-            client[0]['name'],
-            address[0]['name'],
+            list[i][columnIdOrderOrderDetails].toString(),
+            client[0][columnName],
+            address[0][columnName],
             total.toDouble(),
             allProducts);
       }

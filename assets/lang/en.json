@@ -43,7 +43,14 @@
   "MustUploadImage" : "must upload image",
   "Featured" : "Featured",
   "NoAddressAdded" : "No Address Added !",
-  "AddressAdded" : "AddressAdded"
+  "AddressAdded" : "AddressAdded",
+  "Language" : "language",
+  "SignOut" : "Sign Out",
+  "MustAddAddress" : "must add address!",
+  "TotalPrice" : "total price",
+  "NoProduct" : "No Product",
+  "AddedSuccessToCart" : "added success to cart"
+
 
 
 }

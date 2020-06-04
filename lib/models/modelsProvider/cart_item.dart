@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:store_flutter_app/db/db_helper.dart';
 
 class CartItem extends ChangeNotifier {
   String _id;
@@ -8,16 +9,28 @@ class CartItem extends ChangeNotifier {
   double _totalPrice;
   int _quantity;
 
-  CartItem(this._nameProduct, this._image, this._totalPrice, this._quantity , this._idProdcut);
+  CartItem(this._nameProduct, this._image, this._totalPrice, this._quantity,
+      this._idProdcut);
 
+  factory CartItem.fromJson(Map<String, dynamic> json) {
+    CartItem cartItem = new CartItem(
+        json[DBHelper.columnNameProductCart],
+        json[DBHelper.columnImage],
+        json[DBHelper.columnTotalPriceCart],
+        json[DBHelper.columnQuantity],
+        json[DBHelper.columnIdProductF]);
+    cartItem.id = json[DBHelper.columnId].toString();
 
-  void incrementQuantity(){
-    _quantity =  _quantity +1;
+    return cartItem;
+  }
+
+  void incrementQuantity() {
+    _quantity = _quantity + 1;
     notifyListeners();
   }
 
-  void reduceQuantity(){
-    _quantity =  _quantity - 1;
+  void reduceQuantity() {
+    _quantity = _quantity - 1;
     notifyListeners();
   }
 
@@ -30,7 +43,6 @@ class CartItem extends ChangeNotifier {
   double get totalPrice => _totalPrice;
 
   String get image => _image;
-
 
   int get idProdcut => _idProdcut;
 
@@ -57,6 +69,4 @@ class CartItem extends ChangeNotifier {
   set idProdcut(int value) {
     _idProdcut = value;
   }
-
-
 }

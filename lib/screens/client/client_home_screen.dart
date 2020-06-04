@@ -316,12 +316,12 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
             if (_client.productCategory.isEmpty && _isClickCategory)
               Expanded(
                   child: Center(
-                child: Text('No Product'),
+                child: Text(getTranslated(context, 'NoProduct')),
               )),
             if (_client.productSearch.isEmpty && _isWrite)
               Expanded(
                   child: Center(
-                child: Text('No Product'),
+                child: Text(getTranslated(context, 'NoProduct')),
               ))
           ],
         ));

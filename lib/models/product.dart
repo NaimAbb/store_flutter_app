@@ -1,3 +1,5 @@
+import 'package:store_flutter_app/db/db_helper.dart';
+
 class Product {
   String _id;
   String _name;
@@ -10,9 +12,12 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     Product product = new Product(
-        json['name'], json['price'], json['idCategory'], json['duscription']);
-    product.id = json['id'].toString();
-    product.image = json['image'];
+        json[DBHelper.columnName],
+        json[DBHelper.columnPriceProduct],
+        json[DBHelper.columnIdCategoryProduct],
+        json[DBHelper.columnDuscriptionProduct]);
+    product.id = json[DBHelper.columnId].toString();
+    product.image = json[DBHelper.columnImage];
 
     return product;
   }

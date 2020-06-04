@@ -43,5 +43,11 @@
   "MustUploadImage" : "يجب رفع صورة للمنتج!",
   "Featured" : "متميز",
   "NoAddressAdded" : "لا يوجد عنوان !",
-  "AddressAdded" : "تم اضافة العنوان"
+  "AddressAdded" : "تم اضافة العنوان",
+  "Language" : "اللغة",
+  "SignOut" : "تسجيل خروج",
+  "MustAddAddress" : "يجب اضافة عنوان !",
+  "TotalPrice" : "السعر الاجمالي",
+  "NoProduct" : "لا يوجد منتجات",
+  "AddedSuccessToCart" : "تم اضافة المنتج الى السلة"
 }

@@ -11,6 +11,7 @@ class Auth extends ChangeNotifier {
       {@required String email, @required String password}) async {
     final result = await _db.emailAndPasswordIsExist(email, password);
     if (result != null) {
+      print(result.type.toString());
       await _db.addCategories();
       await Constants.sharedPreferencesLocal.setUserId(result.id);
       await Constants.sharedPreferencesLocal.setIsLogin(true);

@@ -21,17 +21,22 @@ import 'localStorage/shared_preferences_local.dart';
 import 'providers/merchant.dart';
 import 'providers/client.dart';
 
+Locale locale;
+
 Future<Map<String, dynamic>> _init() async {
   Map<String, dynamic> data = {};
   Constants.sharedPreferencesLocal = await SharedPreferencesLocal.getInstance();
   // await Constants.sharedPreferencesLocal.clear();
   if (Constants.sharedPreferencesLocal.getIsLogin()) {
-    if (Constants.sharedPreferencesLocal.getTypeAccount() == 'Client') {
+    if (Constants.sharedPreferencesLocal.getTypeAccount() == 'Type.Client') {
       data['isLogin'] = true;
       data['type'] = 'Client';
+      print('---------');
+      locale = await Constants.sharedPreferencesLocal.getLang();
     } else {
       data['isLogin'] = true;
       data['type'] = 'Merchant';
+      locale = await Constants.sharedPreferencesLocal.getLang();
     }
   } else {
     data['isLogin'] = false;
@@ -78,7 +83,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   // Locale _locale = locale;
-  Locale _locale;
+  Locale _locale = locale;
 
   void setLocale(Locale locale) {
     setState(() {
@@ -95,7 +100,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider.value(value: Client()),
       ],
       child: MaterialApp(
-        localeResolutionCallback: (deviceLocale, supportedLocales) {
+        localeResolutionCallback: (deviceLocale, supportedLocales){
           // return Locale('ar', 'AE');
           for (var locale in supportedLocales) {
             if (locale != null &&

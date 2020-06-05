@@ -131,6 +131,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: TextFormField(
+                  keyboardType: TextInputType.emailAddress,
                   onFieldSubmitted: (_) =>
                       FocusScope.of(context).requestFocus(_passwordFocusNode),
                   textInputAction: TextInputAction.next,

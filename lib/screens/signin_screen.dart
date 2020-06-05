@@ -105,6 +105,7 @@ class _SignInScreenState extends State<SignInScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: TextFormField(
+                  keyboardType: TextInputType.emailAddress,
                   validator: (val) {
                     if (val == null || val.isEmpty) {
                       return getTranslated(context, 'PleaseEnterEmail');

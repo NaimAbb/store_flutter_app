@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:store_flutter_app/localization/localization_constants.dart';
 import 'package:store_flutter_app/screens/client/cart_screen.dart';
 import 'package:store_flutter_app/screens/client/details_product_screen.dart';
@@ -115,73 +116,69 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       height: 130,
                       child: ListView(
                         scrollDirection: Axis.horizontal,
-                        children: List.generate(
-                            _client.categories.length + 1,
+                        children: List.generate(_client.categories.length + 1,
                             (index) {
-                              if (index == _client.categories.length){
-                                return InkWell(
-                                  onTap: () async {
-                                    _isClickCategory = false;
-                                    _isWrite = false;
-                                    _client.allProduct();
-                                  },
-                                  child: Card(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(7)),
-                                    elevation: 5,
-                                    child: Container(
-                                      height: 130,
-                                      width: 130,
-                                      child: Center(
-                                          child: Text(
-                                           'All Product',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold),
-                                          )),
-                                      decoration: BoxDecoration(
-                                        color: Colors.black,
-                                          borderRadius:
-                                          BorderRadius.circular(7),
-                                          ),
-                                    ),
-                                  ),
-                                );
-                              }
-                              return InkWell(
-                                onTap: () async {
-                                  _isClickCategory = true;
-                                  _isLoading = true;
-                                  await _client.productByCategory(int.parse(
-                                      _client.categories[index].id));
-                                  _isLoading = false;
-                                },
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(7)),
-                                  elevation: 5,
-                                  child: Container(
-                                    height: 130,
-                                    width: 130,
-                                    child: Center(
-                                        child: Text(
-                                          _client.categories[index].name,
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold),
-                                        )),
-                                    decoration: BoxDecoration(
-                                        borderRadius:
-                                        BorderRadius.circular(7),
-                                        image: DecorationImage(
-                                            fit: BoxFit.contain,
-                                            image: NetworkImage(_client
-                                                .categories[index]
-                                                .imageUrl))),
+                          if (index == _client.categories.length) {
+                            return InkWell(
+                              onTap: () async {
+                                _isClickCategory = false;
+                                _isWrite = false;
+                                _client.allProduct();
+                              },
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(7)),
+                                elevation: 5,
+                                child: Container(
+                                  height: 130,
+                                  width: 130,
+                                  child: Center(
+                                      child: Text(
+                                    'All Product',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  )),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.circular(7),
                                   ),
                                 ),
-                              );
-                            }),
+                              ),
+                            );
+                          }
+                          return InkWell(
+                            onTap: () async {
+                              _isClickCategory = true;
+                              _isLoading = true;
+                              await _client.productByCategory(
+                                  int.parse(_client.categories[index].id));
+                              _isLoading = false;
+                            },
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(7)),
+                              elevation: 5,
+                              child: Container(
+                                height: 130,
+                                width: 130,
+                                child: Center(
+                                    child: Text(
+                                  _client.categories[index].name,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                )),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(7),
+                                    image: DecorationImage(
+                                        fit: BoxFit.contain,
+                                        image: NetworkImage(_client
+                                            .categories[index].imageUrl))),
+                              ),
+                            ),
+                          );
+                        }),
                       ),
                     ),
                     SizedBox(
@@ -245,39 +242,72 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
             if (_client.productCategory.isEmpty &&
                 !_isClickCategory &&
                 !_isWrite)
-              Expanded(
-                  child: GridView(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      children:
-                          List.generate(_client.getFeatured.length, (index) {
-                        return InkWell(
-                          onTap: () {
-                            Navigator.of(context).pushNamed(
-                                DetailsProductScreen.routeName,
-                                arguments: _client.getFeatured[index]);
-                          },
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Image.memory(
-                                base64Decode(_client.getFeatured[index].image),
-                                fit: BoxFit.cover,
-                                height: 300,
-                              ),
-                              Text('${_client.getFeatured[index].price}\$'),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Text(_client.getFeatured[index].name),
-                            ],
+               Expanded(
+                 child: StaggeredGridView.count(
+                   padding: const EdgeInsets.symmetric(horizontal: 10),
+                  crossAxisCount: 2,
+                  children: _client.getFeatured.map((e) {
+                    return InkWell(
+                      onTap: () {
+                        Navigator.of(context).pushNamed(
+                            DetailsProductScreen.routeName,
+                            arguments: e);
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Image.memory(
+                            base64Decode(e.image),
+                            fit: BoxFit.cover,
+                            height: 300,
                           ),
-                        );
-                      }),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.55,
-                          mainAxisSpacing: 10,
-                          crossAxisSpacing: 10))),
+                          Text('${e.price}\$'),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(e.name),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  staggeredTiles: _client.getFeatured.map<StaggeredTile>((_) => StaggeredTile.fit(1)).toList(),
+                  mainAxisSpacing: 20,
+                  crossAxisSpacing: 10,
+              ),
+               ),
+//            Expanded(
+//                child: GridView(
+//                    padding: const EdgeInsets.symmetric(horizontal: 10),
+//                    children:
+//                        List.generate(_client.getFeatured.length, (index) {
+//                      return InkWell(
+//                        onTap: () {
+//                          Navigator.of(context).pushNamed(
+//                              DetailsProductScreen.routeName,
+//                              arguments: _client.getFeatured[index]);
+//                        },
+//                        child: Column(
+//                          crossAxisAlignment: CrossAxisAlignment.start,
+//                          children: <Widget>[
+//                            Image.memory(
+//                              base64Decode(_client.getFeatured[index].image),
+//                              fit: BoxFit.cover,
+//                              height: 300,
+//                            ),
+//                            Text('${_client.getFeatured[index].price}\$'),
+//                            SizedBox(
+//                              height: 5,
+//                            ),
+//                            Text(_client.getFeatured[index].name),
+//                          ],
+//                        ),
+//                      );
+//                    }),
+//                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+//                        crossAxisCount: 2,
+//                        childAspectRatio: 0.400,
+//                        mainAxisSpacing: 10,
+//                        crossAxisSpacing: 10))),
             if (_client.productCategory.isNotEmpty && !_isWrite)
               Expanded(
                   child: GridView(
@@ -372,7 +402,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
       _isWrite = false;
       _client.productSearch.clear();
     }
-    if (_searchController.text.isNotEmpty && _isClickCategory){
+    if (_searchController.text.isNotEmpty && _isClickCategory) {
       _isWrite = false;
       _client.productSearch.clear();
     }

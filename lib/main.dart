@@ -44,23 +44,12 @@ Future<Map<String, dynamic>> _init() async {
     data['isLogin'] = false;
   }
   return data;
-
-  // Helpers.changeAppLang(AppShared.sharedPreferencesController.getAppLang());
 }
 
-//Locale locale;
-//
-//Future<void> _getLang() async {
-//  final sharedPreferences = await SharedPreferences.getInstance();
-//  String languageCode = sharedPreferences.getString('languageCode') ?? null;
-//  String countryCode = sharedPreferences.getString('countryCode') ?? null;
-//  if (languageCode != null && countryCode != null)
-//    locale = new Locale(languageCode, countryCode);
-//}
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await _getLang();
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   final data = await _init();
@@ -84,7 +73,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // Locale _locale = locale;
   Locale _locale = locale;
 
   void setLocale(Locale locale) {

@@ -46,7 +46,7 @@ class _SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 
-  Future<void> _signUpBtn() async {
+  Future<void> _signInBtn() async {
     bool result = _fromState.currentState.validate();
     if (!result) return;
     try {
@@ -148,7 +148,7 @@ class _SignInScreenState extends State<SignInScreen> {
               ButtonCommon(
                 getTranslated(context, 'SignIn'),
                 onPress: () async {
-                  _signUpBtn();
+                  _signInBtn();
                   //  Navigator.of(context).pushNamed(ClientHomeScreen.routeName);
                 },
               ),

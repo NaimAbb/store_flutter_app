@@ -49,5 +49,8 @@
   "MustAddAddress" : "يجب اضافة عنوان !",
   "TotalPrice" : "السعر الاجمالي",
   "NoProduct" : "لا يوجد منتجات",
-  "AddedSuccessToCart" : "تم اضافة المنتج الى السلة"
+  "AddedSuccessToCart" : "تم اضافة المنتج الى السلة",
+  "Details" : "التفاصيل",
+  "OrderId" : "رقم الطلب",
+  "NoOrder" : "لا يوجد طلبات"
 }

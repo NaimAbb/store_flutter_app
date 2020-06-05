@@ -49,8 +49,10 @@
   "MustAddAddress" : "must add address!",
   "TotalPrice" : "total price",
   "NoProduct" : "No Product",
-  "AddedSuccessToCart" : "added success to cart"
-
+  "AddedSuccessToCart" : "added success to cart",
+  "Details" : "Details",
+  "OrderId" : "OrderId",
+  "NoOrder" : "No Order"
 
 
 }

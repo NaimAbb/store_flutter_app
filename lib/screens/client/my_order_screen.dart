@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:store_flutter_app/localization/localization_constants.dart';
 import 'package:store_flutter_app/screens/client/cart_screen.dart';
 import 'package:store_flutter_app/screens/client/client_home_screen.dart';
+import 'package:store_flutter_app/screens/client/order_details_client_screen.dart';
 import 'package:store_flutter_app/utils/constants.dart';
 import 'package:store_flutter_app/widgets/button_common.dart';
 import 'package:store_flutter_app/models/order.dart';
@@ -25,7 +26,10 @@ class MyOrderScreen extends StatelessWidget {
               width: 120,
               height: 120,
               fit: BoxFit.cover,
-            ),SizedBox(width: 10,),
+            ),
+            SizedBox(
+              width: 10,
+            ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -39,9 +43,11 @@ class MyOrderScreen extends StatelessWidget {
                   height: 10,
                 ),
                 ButtonCommon(
-                  getTranslated(context, 'OrderAgain'),
+                  getTranslated(context, 'Details'),
                   onPress: () {
-
+                    Navigator.of(context).pushNamed(
+                        OrderDetailsClientScreen.routeName,
+                        arguments: orderId);
                   },
                 ),
                 SizedBox(
@@ -58,7 +64,8 @@ class MyOrderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final data = ModalRoute.of(context).settings.arguments as int ?? 0;
-    Provider.of<Client>(context , listen: false).getOrdersForClient(int.parse(Constants.sharedPreferencesLocal.getUserId()));
+    Provider.of<Client>(context, listen: false).getOrdersForClient(
+        int.parse(Constants.sharedPreferencesLocal.getUserId()));
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -93,9 +100,16 @@ class MyOrderScreen extends StatelessWidget {
             SizedBox(
               height: 40,
             ),
-
             Selector<Client, List<Order>>(
                 builder: (_, List<Order> getOrders, __) {
+                  if (getOrders == null || getOrders.isEmpty) {
+                    return Text(
+                      getTranslated(context, 'NoOrder'),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 18),
+                    );
+                  }
                   return Column(
                     children: List.generate(
                         getOrders.length,

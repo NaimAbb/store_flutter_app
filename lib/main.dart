@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:store_flutter_app/models/user.dart';
 import 'localization/localization.dart';
 import 'screens/signin_screen.dart';
 import 'screens/signup_screen.dart';
@@ -20,15 +21,16 @@ import 'utils/constants.dart';
 import 'localStorage/shared_preferences_local.dart';
 import 'providers/merchant.dart';
 import 'providers/client.dart';
+import 'screens/client/order_details_client_screen.dart';
 
 Locale locale;
 
 Future<Map<String, dynamic>> _init() async {
   Map<String, dynamic> data = {};
   Constants.sharedPreferencesLocal = await SharedPreferencesLocal.getInstance();
-  // await Constants.sharedPreferencesLocal.clear();
   if (Constants.sharedPreferencesLocal.getIsLogin()) {
-    if (Constants.sharedPreferencesLocal.getTypeAccount() == 'Type.Client') {
+    print(Constants.sharedPreferencesLocal.getTypeAccount() );
+    if (Constants.sharedPreferencesLocal.getTypeAccount() == Type.Client.toString()) {
       data['isLogin'] = true;
       data['type'] = 'Client';
       print('---------');
@@ -141,7 +143,8 @@ class _MyAppState extends State<MyApp> {
           AddressScreen.routeName: (_) => AddressScreen(),
           AddNewAddressScreen.routeName: (_) => AddNewAddressScreen(),
           MyOrderScreen.routeName: (_) => MyOrderScreen(),
-          DetailsProductScreen.routeName: (_) => DetailsProductScreen()
+          DetailsProductScreen.routeName: (_) => DetailsProductScreen(),
+          OrderDetailsClientScreen.routeName : (_) => OrderDetailsClientScreen()
         },
       ),
     );

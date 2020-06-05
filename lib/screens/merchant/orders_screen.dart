@@ -27,7 +27,7 @@ class OrdersScreen extends StatelessWidget {
               children: <Widget>[
                 Text(orderMerchant.address),
                 ButtonCommon(
-                  'Details',
+                  getTranslated(context, 'Details'),
                   onPress: () {
                     Navigator.of(context)
                         .pushNamed(OrderDetailsScreen.routeName , arguments: orderMerchant);

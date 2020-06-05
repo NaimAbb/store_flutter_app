@@ -155,7 +155,7 @@ class _CartScreenState extends State<CartScreen> {
                 ),
       bottomSheet: Container(
           margin: const EdgeInsets.only(bottom: 10, top: 10),
-          height: 90,
+          height: 100,
           child: Column(
             children: <Widget>[
               Text('${getTranslated(context, 'TotalPrice')} : \$$total'),

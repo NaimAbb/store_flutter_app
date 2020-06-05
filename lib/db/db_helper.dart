@@ -13,7 +13,7 @@ import 'package:store_flutter_app/models/product.dart';
 import 'package:store_flutter_app/models/user.dart';
 
 class DBHelper {
-  // shared argument
+  // shared columns
 
   static const String columnId = 'id';
   static const String columnName = 'name';
@@ -22,6 +22,8 @@ class DBHelper {
   static const String columnIdProductF = 'idProduct';
   static const String columnIdAddressF = 'idAddress';
   static const String columnQuantity = 'quantity';
+
+  // end shared columns
 
   // start table user
   final String tableUser = 'User';
@@ -189,6 +191,23 @@ class DBHelper {
         ''');
   }
 
+  Future<List<Product>> getOrdersDetailsForClient(int idOrder) async {
+    var dbConnection = await db();
+    List<Product> allProducts = [];
+    List<Map> productInOrder = await dbConnection.rawQuery(
+        'SELECT * FROM $tableOrderDetails WHERE $columnIdOrderOrderDetails = ?',
+        [idOrder]);
+
+    for (int i = 0; i < productInOrder.length; i++) {
+      final idProduct = productInOrder[i][columnIdProductF] as int;
+      List<Map> products = await dbConnection.rawQuery(
+          'SELECT * FROM $tableProduct WHERE $columnId = ?', [idProduct]);
+      Product product = Product.fromJson(products[0]);
+      allProducts.add(product);
+    }
+    return allProducts;
+  }
+
   // || Operation User
 
   Future<int> addUser(User user, String password) async {
@@ -240,10 +259,10 @@ class DBHelper {
         'SELECT * FROM $tableUser WHERE $columnEmailUser = ? AND $columnPasswordUser = ?',
         [email, password]);
     if (list != null && list.isNotEmpty) {
-      String type = list[0]['type'] as String;
-      User user = new User(list[0]['name'], list[0]['email'],
+      String type = list[0][columnTypeUser] as String;
+      User user = new User(list[0][columnName], list[0][columnEmailUser],
           type == 'Client' ? Type.Client : Type.Merchant);
-      user.id = list[0]['id'].toString();
+      user.id = list[0][columnId].toString();
       return user;
     } else {
       return null;
@@ -339,7 +358,6 @@ class DBHelper {
 
     for (int i = 0; i < list.length; i++) {
       Product product = Product.fromJson(list[i]);
-
 
       print(product.idCategory);
       products.add(product);

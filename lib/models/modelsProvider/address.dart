@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class Address extends ChangeNotifier {
-  int _id;
+  String _id;
   String _name;
-  int _idUser;
+  String _idUser;
   String _addressLane;
   String _city;
   String _postalCode;
@@ -11,12 +11,12 @@ class Address extends ChangeNotifier {
 
   // for choose Only
 
-  int _indexSelected = 0;
+  String _indexSelected = '';
 
   Address(this._name, this._idUser, this._addressLane, this._city,
       this._postalCode, this._phoneNumber);
 
-  factory Address.formJson(Map<dynamic, dynamic> data) {
+  factory Address.formJson(Map<dynamic, dynamic> data , {String idAddress}) {
     Address address = new Address(
         data['name'],
         data['idUser'],
@@ -24,11 +24,11 @@ class Address extends ChangeNotifier {
         data['city'],
         data['postalCode'],
         data['phoneNumber']);
-    address.id = data['id'];
+    address.id = idAddress != null ? idAddress :data['id'];
     return address;
   }
 
-  void changeValueSelected(int value){
+  void changeValueSelected(String value){
     _indexSelected = value;
     notifyListeners();
   }
@@ -36,9 +36,9 @@ class Address extends ChangeNotifier {
 
 
 
-  int get indexSelected => _indexSelected;
+  String get indexSelected => _indexSelected;
 
-  int get id => _id;
+  String get id => _id;
 
   String get name => _name;
 
@@ -50,7 +50,7 @@ class Address extends ChangeNotifier {
 
   String get addressLane => _addressLane;
 
-  int get idUser => _idUser;
+  String get idUser => _idUser;
 
   set phoneNumber(String value) {
     _phoneNumber = value;
@@ -68,7 +68,7 @@ class Address extends ChangeNotifier {
     _addressLane = value;
   }
 
-  set idUser(int value) {
+  set idUser(String value) {
     _idUser = value;
   }
 
@@ -76,7 +76,7 @@ class Address extends ChangeNotifier {
     _name = value;
   }
 
-  set id(int value) {
+  set id(String value) {
     _id = value;
   }
 }

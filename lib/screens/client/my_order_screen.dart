@@ -15,14 +15,14 @@ class MyOrderScreen extends StatelessWidget {
   static const String routeName = '/my-order-screen';
 
   Widget buildItemOrder(
-      BuildContext context, String image, int orderId, double totalPrice) {
+      BuildContext context, String image, String orderId, double totalPrice) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Card(
         child: Row(
           children: <Widget>[
-            Image.memory(
-              base64Decode(image),
+            Image.network(
+             image,
               width: 120,
               height: 120,
               fit: BoxFit.cover,
@@ -65,7 +65,7 @@ class MyOrderScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final data = ModalRoute.of(context).settings.arguments as int ?? 0;
     Provider.of<Client>(context, listen: false).getOrdersForClient(
-        int.parse(Constants.sharedPreferencesLocal.getUserId()));
+        Constants.sharedPreferencesLocal.getUserId());
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

@@ -108,34 +108,42 @@ class _NewProductScreenState extends State<NewProductScreen> {
     if (_imageProduct == null) {
       showDialog(
           context: context,
-          builder: (_) => ErrorDialogWidget(getTranslated(context, 'MustUploadImage')));
+          builder: (_) =>
+              ErrorDialogWidget(getTranslated(context, 'MustUploadImage')));
       return;
     }
-    String base64 = base64Encode(_imageProduct.readAsBytesSync());
-    print(base64);
-    Category category = _merchant.categories
-        .firstWhere((element) => element.name == _categorySelected);
-    Product product = new Product(
-        _nameProductController.text,
-        double.parse(_priceProductController.text),
-        int.parse(category.id),
-        _duscriptionProductController.text);
-    product.image = base64;
+//    String base64 = base64Encode(_imageProduct.readAsBytesSync());
+//    print(base64);
 
-    await _merchant.addProduct(product);
-    await showDialog(
-        context: context, builder: (_) => SuccessDialogWidget('Success'));
-    Navigator.of(context).pop();
+    try {
+      Category category = _merchant.categories
+          .firstWhere((element) => element.name == _categorySelected);
+      Product product = new Product(
+          _nameProductController.text,
+          double.parse(_priceProductController.text),
+          category.id,
+          _duscriptionProductController.text);
+      // product.image = base64;
+
+      await _merchant.addProduct(product, _imageProduct);
+      await showDialog(
+          context: context, builder: (_) => SuccessDialogWidget('Success'));
+      Navigator.of(context).pop();
+    }catch(error){
+      print(error.toString());
+    }
 
     //  DBHelper().getProducts();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(elevation: 0,backgroundColor: Colors.white,iconTheme: IconThemeData(color: Colors.black),),
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.black),
+      ),
       body: Form(
         key: _formState,
         child: SingleChildScrollView(

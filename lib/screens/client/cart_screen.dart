@@ -208,8 +208,8 @@ class _CartItemState extends State<_CartItem> {
       child: Card(
         child: Row(
           children: <Widget>[
-            Image.memory(
-              base64Decode(widget.cartItem.image),
+            Image.network(
+              widget.cartItem.image,
               width: 120,
               height: 120,
               fit: BoxFit.cover,

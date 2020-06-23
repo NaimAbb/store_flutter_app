@@ -152,7 +152,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                               _isClickCategory = true;
                               _isLoading = true;
                               await _client.productByCategory(
-                                  int.parse(_client.categories[index].id));
+                                  _client.categories[index].id);
                               _isLoading = false;
                             },
                             child: Card(
@@ -242,9 +242,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
             if (_client.productCategory.isEmpty &&
                 !_isClickCategory &&
                 !_isWrite)
-               Expanded(
-                 child: StaggeredGridView.count(
-                   padding: const EdgeInsets.symmetric(horizontal: 10),
+              Expanded(
+                child: StaggeredGridView.count(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   crossAxisCount: 2,
                   children: _client.getFeatured.map((e) {
                     return InkWell(
@@ -256,11 +256,17 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Image.memory(
-                            base64Decode(e.image),
-                            fit: BoxFit.cover,
-                            height: 300,
-                          ),
+                          e.image == null
+                              ? Image.network(
+                                  '',
+                                  fit: BoxFit.cover,
+                                  height: 300,
+                                )
+                              : Image.network(
+                                  e.image,
+                                  fit: BoxFit.cover,
+                                  height: 300,
+                                ),
                           Text('${e.price}\$'),
                           SizedBox(
                             height: 5,
@@ -270,11 +276,13 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                       ),
                     );
                   }).toList(),
-                  staggeredTiles: _client.getFeatured.map<StaggeredTile>((_) => StaggeredTile.fit(1)).toList(),
+                  staggeredTiles: _client.getFeatured
+                      .map<StaggeredTile>((_) => StaggeredTile.fit(1))
+                      .toList(),
                   mainAxisSpacing: 20,
                   crossAxisSpacing: 10,
+                ),
               ),
-               ),
 //            Expanded(
 //                child: GridView(
 //                    padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -323,12 +331,17 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Image.memory(
-                                base64Decode(
-                                    _client.productCategory[index].image),
-                                fit: BoxFit.cover,
-                                height: 300,
-                              ),
+                              _client.productCategory[index].image == null
+                                  ? Image.network(
+                                      '',
+                                      fit: BoxFit.cover,
+                                      height: 300,
+                                    )
+                                  : Image.network(
+                                      _client.productCategory[index].image,
+                                      fit: BoxFit.cover,
+                                      height: 300,
+                                    ),
                               Text('${_client.productCategory[index].price}\$'),
                               SizedBox(
                                 height: 5,

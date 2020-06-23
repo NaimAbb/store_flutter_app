@@ -30,8 +30,8 @@ class DetailsProductScreen extends StatelessWidget {
             height: 20,
           ),
          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch,children: <Widget>[
-           Image.memory(
-             base64Decode(dataProduct.image),
+           Image.network(
+           dataProduct.image,
              height: 200,
              fit: BoxFit.fill,
            ),
@@ -68,7 +68,7 @@ class DetailsProductScreen extends StatelessWidget {
            Padding(
                padding: const EdgeInsets.symmetric(horizontal: 10),
                child: Text(
-                 dataProduct.description,
+                 dataProduct.description == null ? '': dataProduct.description,
                  style: const TextStyle(color: Colors.black87, fontSize: 16),
                )),
          ],),),
@@ -83,7 +83,7 @@ class DetailsProductScreen extends StatelessWidget {
                     dataProduct.image,
                     dataProduct.price,
                     1,
-                    int.parse(dataProduct.id));
+                    dataProduct.id);
                 await Provider.of<Client>(context, listen: false)
                     .addToCart(cartItem);
                 await Provider.of<Client>(context, listen: false)

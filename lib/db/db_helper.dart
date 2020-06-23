@@ -96,7 +96,7 @@ class DBHelper {
     io.Directory documentDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentDirectory.path, 'StoreDB.db');
     //   var r = await databaseExists(path);
-    var db = await openDatabase(path, version: 1, onCreate: onCreateAll);
+    var db = await openDatabase(path, version: 2, onCreate: onCreateAll);
     return db;
   }
 
@@ -142,7 +142,7 @@ class DBHelper {
     await db.execute('''
         CREATE TABLE $tableCart (
         $columnId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
-        $columnIdProductF INTEGER NOT NULL , 
+        $columnIdProductF TEXT NOT NULL , 
         $columnNameProductCart TEXT NOT NULL , 
         $columnImage TEXT NOT NULL ,
         $columnTotalPriceCart REAL NOT NULL ,
@@ -389,14 +389,14 @@ class DBHelper {
       var quantity = list[0][columnQuantity] as int;
       quantity = quantity + 1;
       String query =
-          'UPDATE $tableCart SET $columnQuantity = ${quantity} WHERE $columnIdProductF = ${cartItem.idProdcut}';
+          'UPDATE $tableCart SET $columnQuantity = ${quantity} WHERE $columnIdProductF = \'${cartItem.idProdcut}\'';
       await dbConnection.transaction((transaction) async {
         return await transaction.rawQuery(query);
       });
     } else {
       String query =
           'INSERT INTO $tableCart ($columnNameProductCart , $columnImage ,$columnTotalPriceCart ,$columnQuantity , $columnIdProductF) '
-          'VALUES (\'${cartItem.nameProduct}\', \'${cartItem.image}\',${cartItem.totalPrice} , \'${cartItem.quantity}\',${cartItem.idProdcut})';
+          'VALUES (\'${cartItem.nameProduct}\', \'${cartItem.image}\',${cartItem.totalPrice} , \'${cartItem.quantity}\',\'${cartItem.idProdcut}\')';
 
       int result = await dbConnection.transaction((transaction) async {
         return await transaction.rawInsert(query);
@@ -419,7 +419,7 @@ class DBHelper {
     return cartItems;
   }
 
-  Future<void> reducingTheQuantity(int idProduct) async {
+  Future<void> reducingTheQuantity(String idProduct) async {
     var dbConnection = await db();
     List<Map> list = await dbConnection.rawQuery(
         'SELECT * FROM $tableCart WHERE $columnIdProductF = ? ', [idProduct]);
@@ -427,17 +427,17 @@ class DBHelper {
       var quantity = list[0][columnQuantity] as int;
       quantity = quantity - 1;
       String query =
-          'UPDATE $tableCart SET $columnQuantity = ${quantity} WHERE $columnIdProductF = ${idProduct}';
+          'UPDATE $tableCart SET $columnQuantity = ${quantity} WHERE $columnIdProductF = \'${idProduct}\'';
       await dbConnection.transaction((transaction) async {
         return await transaction.rawQuery(query);
       });
     }
   }
 
-  Future<void> deleteItemFromCart(int idProduct) async {
+  Future<void> deleteItemFromCart(String idProduct) async {
     var dbConnection = await db();
     String query =
-        'DELETE FROM $tableCart  WHERE $columnIdProductF = ${idProduct}';
+        'DELETE FROM $tableCart  WHERE $columnIdProductF = \'${idProduct}\' ';
     await dbConnection.transaction((transaction) async {
       return await transaction.rawQuery(query);
     });
@@ -468,7 +468,7 @@ class DBHelper {
   }
 
   Future<void> addOrder(
-      List<CartItem> items, int idClient, int idAddress) async {
+      List<CartItem> items, int idClient, String idAddress) async {
     var dbConnection = await db();
     double totalPrice = 0;
     items.forEach((element) {
@@ -482,7 +482,7 @@ class DBHelper {
       return await transaction.rawInsert(query);
     });
     for (var item in items) {
-      int idProduct = item.idProdcut;
+      String idProduct = item.idProdcut;
       List<Map> list = await dbConnection.rawQuery(
           'SELECT $columnIdUserF FROM $tableProductUser WHERE $columnIdProductF = ? ',
           [idProduct]);

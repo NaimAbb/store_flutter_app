@@ -1,6 +1,6 @@
 
 class Order {
-  int _id;
+  String _id;
   double _totalPrice;
   String _image;
 
@@ -8,7 +8,7 @@ class Order {
 
 
 
-  int get id => _id;
+  String get id => _id;
 
   double get totalPrice => _totalPrice;
 
@@ -22,7 +22,7 @@ class Order {
     _totalPrice = value;
   }
 
-  set id(int value) {
+  set id(String value) {
     _id = value;
   }
 }

@@ -43,7 +43,7 @@ class OrdersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<Merchant>(context , listen: false).getOrdersForMerchant(int.parse(Constants.sharedPreferencesLocal.getUserId()));
+    Provider.of<Merchant>(context , listen: false).getOrdersForMerchant(Constants.sharedPreferencesLocal.getUserId());
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

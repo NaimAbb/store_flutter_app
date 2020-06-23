@@ -54,7 +54,7 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
     try {
       Address address = new Address(
           _nameController.text,
-          int.parse(Constants.sharedPreferencesLocal.getUserId()),
+          Constants.sharedPreferencesLocal.getUserId(),
           _addressLaneController.text,
           _cityController.text,
           _postalCodeController.text,

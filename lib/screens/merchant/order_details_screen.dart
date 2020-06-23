@@ -88,8 +88,8 @@ class OrderDetailsScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Row(
                       children: <Widget>[
-                        Image.memory(
-                          base64Decode(product.image),
+                        Image.network(
+                          product.image,
                           width: 120,
                           height: 120,
                           fit: BoxFit.cover,

@@ -12,7 +12,7 @@ class OrderDetailsClientScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
-    final idOrder = ModalRoute.of(context).settings.arguments as int;
+    final idOrder = ModalRoute.of(context).settings.arguments as String;
     Provider.of<Client>(context, listen: false).getDetailsForOrder(idOrder);
     return Scaffold(
         body: Column(

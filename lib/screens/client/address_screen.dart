@@ -21,7 +21,7 @@ class AddressScreen extends StatelessWidget {
 
   bool isFirst = true;
 
-  Future<void> confirmBtn(Client client , BuildContext context)async{
+  Future<void> confirmBtn(Client client, BuildContext context) async {
     if (_allAddressNow.isNotEmpty && !isSelected) {
       Fluttertoast.cancel();
       Fluttertoast.showToast(msg: getTranslated(context, 'MustAddAddress'));
@@ -32,30 +32,31 @@ class AddressScreen extends StatelessWidget {
       Fluttertoast.showToast(msg: getTranslated(context, 'MustAddAddress'));
       return;
     }
-    bool result  = false;
+    bool result = false;
     _allAddressNow.forEach((element) {
-      if (element.indexSelected != 0){
+      if (element.indexSelected != 0) {
         result = true;
         return;
       }
     });
-    if (!result){
+    if (!result) {
       Fluttertoast.cancel();
       Fluttertoast.showToast(msg: getTranslated(context, 'MustAddAddress'));
       return;
     }
 
-    Address address = _allAddressNow.firstWhere((element) => element.indexSelected != 0);
-    await client.addOrder(int.parse(Constants.sharedPreferencesLocal.getUserId()), address.id);
-    Navigator.of(context).pushNamed(MyOrderScreen.routeName , arguments: 1);
+    Address address =
+        _allAddressNow.firstWhere((element) => element.indexSelected != 0);
+    await client.addOrder(
+        Constants.sharedPreferencesLocal.getUserId(), address.id);
+    Navigator.of(context).pushNamed(MyOrderScreen.routeName, arguments: 1);
   }
 
   @override
   Widget build(BuildContext context) {
     //   if (isFirst) {
     final client = Provider.of<Client>(context, listen: false);
-    client.getAllAddressForUser(
-        int.parse(Constants.sharedPreferencesLocal.getUserId()));
+    client.getAllAddressForUser(Constants.sharedPreferencesLocal.getUserId());
     //}
     //   isFirst = false;
 
@@ -71,7 +72,6 @@ class AddressScreen extends StatelessWidget {
           SizedBox(
             height: 20,
           ),
-
           Expanded(
             child: Selector<Client, List<Address>>(
                 builder: (_, List<Address> getAllAddress, __) {
@@ -112,8 +112,8 @@ class AddressScreen extends StatelessWidget {
               style: TextStyle(color: Colors.lightBlue[300]),
             ),
           ),
-          ButtonCommon(getTranslated(context, 'Confirm'), onPress: (){
-            confirmBtn(client , context);
+          ButtonCommon(getTranslated(context, 'Confirm'), onPress: () {
+            confirmBtn(client, context);
           }),
           SizedBox(
             height: 10,
@@ -143,15 +143,15 @@ class _ItemAddress extends StatelessWidget {
             Text(address.phoneNumber),
           ],
         ),
-        Selector<Address, int>(
-            builder: (_, int indexSelected, __) {
+        Selector<Address, String>(
+            builder: (_, String indexSelected, __) {
               return Radio(
                   value: address.id,
                   groupValue: indexSelected,
                   onChanged: (val) {
                     _allAddressNow.forEach((element) {
                       if (element.id != address.id) {
-                        element.changeValueSelected(0);
+                        element.changeValueSelected('');
                       }
                     });
                     addressProvider.changeValueSelected(val);

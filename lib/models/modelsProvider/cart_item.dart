@@ -3,7 +3,7 @@ import 'package:store_flutter_app/db/db_helper.dart';
 
 class CartItem extends ChangeNotifier {
   String _id;
-  int _idProdcut;
+  String _idProdcut;
   String _nameProduct;
   String _image;
   double _totalPrice;
@@ -44,7 +44,7 @@ class CartItem extends ChangeNotifier {
 
   String get image => _image;
 
-  int get idProdcut => _idProdcut;
+  String get idProdcut => _idProdcut;
 
   set quantity(int value) {
     _quantity = value;
@@ -66,7 +66,7 @@ class CartItem extends ChangeNotifier {
     _id = value;
   }
 
-  set idProdcut(int value) {
+  set idProdcut(String value) {
     _idProdcut = value;
   }
 }
